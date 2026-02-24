@@ -8,6 +8,15 @@
 # MAGIC > scikit-learn は単一マシンで動作しますが、データが大量になると処理しきれません。
 # MAGIC > Spark ML はクラスタで**分散処理**できるため、大規模データにも対応できます。
 # MAGIC
+# MAGIC ```
+# MAGIC scikit-learn:  1台のPC で処理       → 数万〜数百万行が限界
+# MAGIC Spark ML:      複数台で分散処理      → 数億〜数十億行でもOK
+# MAGIC
+# MAGIC   PC1 ──┐
+# MAGIC   PC2 ──┼──→ 結果を統合  ← これが分散処理
+# MAGIC   PC3 ──┘
+# MAGIC ```
+# MAGIC
 # MAGIC ## 学べること
 # MAGIC - Spark ML の Estimator / Transformer / Pipeline の概念
 # MAGIC - パイプラインの構築と実行
@@ -84,6 +93,15 @@ display(train_df.limit(5))
 # MAGIC > - 前処理とモデルをセットで管理できる
 # MAGIC > - 新しいデータにも同じ前処理を自動適用
 # MAGIC > - MLflow でパイプライン全体を保存・再利用可能
+# MAGIC
+# MAGIC > **初心者の方へ: Pipeline とは何か？**
+# MAGIC >
+# MAGIC > 工場の「製造ライン」をイメージしてください。
+# MAGIC > 原材料（生データ）がベルトコンベアに乗って、各工程（Transformer）で加工され、
+# MAGIC > 最終工程（Estimator）で完成品（予測モデル）になります。
+# MAGIC >
+# MAGIC > `pipeline.fit()` で製造ラインを構築し、
+# MAGIC > `pipeline_model.transform()` で新しいデータを同じラインに流すと自動的に予測が得られます。
 
 # COMMAND ----------
 
@@ -191,6 +209,11 @@ print(f"CrossValidator後の最良テスト精度: {best_accuracy:.4f}")
 # MAGIC **Pandas API on Spark** は、pandasの構文でSparkの分散処理を利用できる機能です。
 # MAGIC 既存のpandasコードをほぼそのまま大規模データに適用できます。
 # MAGIC
+# MAGIC > **初心者の方へ**: pandasに慣れている方は `.pandas_api()` で変換するだけで
+# MAGIC > いつもの pandas 構文が使えます。裏側では Spark の分散処理が動いています。
+# MAGIC >
+# MAGIC > **Apache Arrow** という技術が Pandas ↔ Spark のデータ変換を高速化しています。
+# MAGIC
 # MAGIC ```python
 # MAGIC # pandas
 # MAGIC import pandas as pd
@@ -219,6 +242,13 @@ display(psdf.groupby("label")[["alcohol", "color_intensity"]].mean())
 # MAGIC
 # MAGIC **Pandas UDF** を使うと、pandasの関数をSpark DataFrameに**分散適用**できます。
 # MAGIC scikit-learnなどの単一ノードライブラリをSparkの分散環境で活用できます。
+# MAGIC
+# MAGIC > **なぜ Pandas UDF が便利？**
+# MAGIC >
+# MAGIC > 既存の pandas / scikit-learn のコードを書き直さずに、Spark で並列実行できます。
+# MAGIC > 例: 学習済みモデルの `.predict()` を Pandas UDF にすれば、大量データの予測を分散実行可能。
+# MAGIC >
+# MAGIC > **大量データの場合**: Iterator UDF を使うと、データをバッチごとに処理できて効率的です。
 
 # COMMAND ----------
 
@@ -248,3 +278,8 @@ display(sdf_normalized.select("alcohol", "alcohol_normalized").limit(5))
 # MAGIC
 # MAGIC ### 次のステップ
 # MAGIC - `05_automl.py` で Databricks AutoML を学びましょう
+# MAGIC
+# MAGIC > **認定試験との関連** (ML Associate):
+# MAGIC > - **Model Development (31%)**: Spark ML の Estimator/Transformer/Pipeline パターン、randomSplit、CrossValidator
+# MAGIC > - **Model Development (31%)**: Pandas API on Spark、Apache Arrow、Pandas UDF の分散適用
+# MAGIC > - **Model Deployment (12%)**: Spark による線形回帰・決定木のスケーリング

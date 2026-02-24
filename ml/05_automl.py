@@ -30,11 +30,22 @@
 # MAGIC | **回帰** | 数値を予測 | 価格予測、売上予測 |
 # MAGIC | **時系列予測** | 未来の値を予測 | 需要予測、株価予測 |
 # MAGIC
-# MAGIC AutoML は以下を自動的に行います:
+# MAGIC AutoML は以下を**自動的に**行います:
 # MAGIC 1. データの前処理（欠損値補完、エンコーディング）
 # MAGIC 2. 複数アルゴリズムの試行（ランダムフォレスト、XGBoost、LightGBMなど）
 # MAGIC 3. ハイパーパラメータの最適化
 # MAGIC 4. 全試行結果のMLflowへの記録
+# MAGIC 5. データ探索ノートブックの自動生成
+# MAGIC
+# MAGIC > **試験ポイント: AutoML が「やること」と「やらないこと」**
+# MAGIC >
+# MAGIC > | やること（自動） | やらないこと（手動で必要） |
+# MAGIC > |---|---|
+# MAGIC > | 欠損値の自動補完 | **モデルのデプロイ（Model Serving）** |
+# MAGIC > | 特徴量エンジニアリング | カスタム前処理 |
+# MAGIC > | アルゴリズム選択 | ドメイン固有の特徴量設計 |
+# MAGIC > | ハイパーパラメータ最適化 | モデルの解釈・説明 |
+# MAGIC > | 評価指標の計算 | A/Bテストの設計 |
 
 # COMMAND ----------
 
@@ -162,3 +173,7 @@ print(f"データ探索ノートブック: {summary.output_table_name}")
 # MAGIC
 # MAGIC ### 次のステップ
 # MAGIC - `06_feature_store.py` で Unity Catalog Feature Store を学びましょう
+# MAGIC
+# MAGIC > **認定試験との関連** (ML Associate):
+# MAGIC > - **Databricks Machine Learning (38%)**: AutoML が自動で行うステップ、AutoML が行わないこと（デプロイ）
+# MAGIC > - **Databricks Machine Learning (38%)**: 生成されたノートブックの活用法、評価指標（分類→F1/accuracy、回帰→RMSE）

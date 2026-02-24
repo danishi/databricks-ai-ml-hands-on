@@ -8,6 +8,15 @@
 # MAGIC > 機械学習で使う特徴量（入力データ）を**一元管理**する仕組みです。
 # MAGIC > チームで同じ特徴量を再利用でき、学習時と推論時で異なる特徴量を使うミスを防げます。
 # MAGIC
+# MAGIC > **初心者の方へ: なぜ Feature Store？**
+# MAGIC >
+# MAGIC > 例えば、チームAとチームBが同じ「顧客の年齢」特徴量を**別々に計算**していたら、
+# MAGIC > 微妙に異なる値になるかもしれません。Feature Store に1回登録しておけば、
+# MAGIC > 全チームが**同じ特徴量**を使えます。
+# MAGIC >
+# MAGIC > また、学習時に使った特徴量と推論時の特徴量が異なると、モデルの精度が落ちます。
+# MAGIC > Feature Store はこの「学習-推論スキュー」を防ぎます。
+# MAGIC
 # MAGIC ## 学べること
 # MAGIC - Feature Store の概念と利点
 # MAGIC - Unity Catalog による特徴量テーブルの作成
@@ -33,6 +42,16 @@
 # MAGIC | 学習時と推論時の不一致 | 同じ定義の特徴量を使うことを保証 |
 # MAGIC | データの血統追跡 | どのモデルがどの特徴量を使っているか追跡可能 |
 # MAGIC | 特徴量の発見 | カタログで検索して既存の特徴量を発見 |
+# MAGIC
+# MAGIC > **試験ポイント: オンラインテーブル vs オフラインテーブル**
+# MAGIC >
+# MAGIC > | 種類 | 用途 | レイテンシ |
+# MAGIC > |---|---|---|
+# MAGIC > | **オフライン** | バッチ推論、学習 | 秒〜分（大量データ向け） |
+# MAGIC > | **オンライン** | リアルタイム推論 | ミリ秒（低レイテンシ） |
+# MAGIC >
+# MAGIC > Unity Catalog の Feature Store はアカウントレベルで管理されるため、
+# MAGIC > ワークスペースレベルよりも**アクセス制御とガバナンス**に優れています。
 # MAGIC
 # MAGIC ### Unity Catalog Feature Store のアーキテクチャ
 # MAGIC
@@ -219,3 +238,7 @@ display(predictions.select("wine_id", "prediction"))
 # MAGIC
 # MAGIC ### 次のステップ
 # MAGIC - `07_mlflow_experiment.py` で MLflow を深く学びましょう
+# MAGIC
+# MAGIC > **認定試験との関連** (ML Associate):
+# MAGIC > - **Databricks Machine Learning (38%)**: Feature Store テーブルの作成・書き込み・学習・推論
+# MAGIC > - **Databricks Machine Learning (38%)**: FeatureLookup、オンライン/オフラインテーブルの違い、Unity Catalog 連携

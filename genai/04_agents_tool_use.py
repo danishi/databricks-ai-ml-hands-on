@@ -12,6 +12,14 @@
 # MAGIC > LLMが**ツール（関数）を自律的に呼び出して**タスクを遂行するシステムです。
 # MAGIC > 検索、計算、API呼び出しなどのツールを使い分けて問題を解決します。
 # MAGIC
+# MAGIC > **初心者の方へ: エージェントを身近な例で理解する**
+# MAGIC >
+# MAGIC > エージェント = **秘書さん** のイメージです。
+# MAGIC > - あなた: 「明日の会議室を予約して」
+# MAGIC > - 秘書: (1) スケジュールを確認 → (2) 空き会議室を検索 → (3) 予約を実行 → (4) 結果を報告
+# MAGIC >
+# MAGIC > LLMエージェントも同様に、質問を理解し、必要なツールを選び、実行し、結果をまとめます。
+# MAGIC
 # MAGIC ## 学べること
 # MAGIC - プロンプトチェイニング（複数のLLM呼び出しの連結）
 # MAGIC - ツール使用（Function Calling）の概念
@@ -332,3 +340,8 @@ for msg in conversations:
 # MAGIC
 # MAGIC ### 次のステップ
 # MAGIC - `05_evaluation_governance.py` で生成AIの評価とガバナンスを学びましょう
+# MAGIC
+# MAGIC > **認定試験との関連** (GenAI Engineer Associate):
+# MAGIC > - **Build Multi-stage Reasoning Applications**: プロンプトチェイニング、ツール使用パターン
+# MAGIC > - **Build Multi-stage Reasoning Applications**: エージェントの設計（ツール選択→実行→回答）
+# MAGIC > - **Build Multi-stage Reasoning Applications**: マルチターン会話の文脈管理

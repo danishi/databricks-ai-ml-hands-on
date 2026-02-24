@@ -13,6 +13,19 @@
 # MAGIC > モデルの入力データを加工・改善する作業です。
 # MAGIC > 適切な前処理を行うことで、モデルの精度が大きく向上します。
 # MAGIC
+# MAGIC ### なぜ EDA と特徴量エンジニアリングが重要なのか？
+# MAGIC
+# MAGIC ```
+# MAGIC 生のデータ                      きれいなデータ
+# MAGIC ┌──────────────┐               ┌──────────────┐
+# MAGIC │ 欠損値あり    │  EDA+前処理   │ 欠損値なし    │
+# MAGIC │ 外れ値あり    │  ─────────→  │ スケール統一  │  → モデルの精度UP!
+# MAGIC │ スケールばらばら│              │ 数値化済み    │
+# MAGIC └──────────────┘               └──────────────┘
+# MAGIC ```
+# MAGIC
+# MAGIC > **よく言われること**: 「機械学習の成功の8割はデータの前処理で決まる」
+# MAGIC
 # MAGIC ## 学べること
 # MAGIC - Spark DataFrameを使ったデータの読み込みと基本操作
 # MAGIC - 欠損値・外れ値の検出と処理
@@ -86,6 +99,12 @@ sdf.printSchema()
 # MAGIC
 # MAGIC `describe()` で各列の基本統計量（件数、平均、標準偏差、最小値、最大値）を確認します。
 # MAGIC `summary()` を使うと四分位数（25%, 50%, 75%）も表示されます。
+# MAGIC
+# MAGIC > **初心者の方へ: 基本統計量の見方**
+# MAGIC > - **mean（平均）**: データの中心的な値。外れ値の影響を受けやすい
+# MAGIC > - **stddev（標準偏差）**: データのばらつき具合。大きいほどばらばら
+# MAGIC > - **50%（中央値）**: データを小さい順に並べた真ん中の値。外れ値に強い
+# MAGIC > - **min / max**: 最小値と最大値。異常に大きい/小さい値がないかチェック
 
 # COMMAND ----------
 
@@ -193,6 +212,12 @@ sdf_clean = remove_outliers_iqr(sdf_imputed, "price")
 # MAGIC
 # MAGIC > **注意**: ランダムフォレストや決定木はスケーリング不要です。
 # MAGIC > ロジスティック回帰やSVMなどの距離ベースのアルゴリズムで重要です。
+# MAGIC
+# MAGIC > **初心者の方へ: なぜスケーリングが必要？**
+# MAGIC >
+# MAGIC > たとえば「面積（20〜200㎡）」と「部屋数（1〜5）」では数値の桁が違います。
+# MAGIC > スケーリングをしないと、面積の方が数値が大きいだけで「重要」と誤解されることがあります。
+# MAGIC > StandardScaler は全ての特徴量を**同じ尺度**に揃えて、公平に比較できるようにします。
 
 # COMMAND ----------
 
@@ -228,6 +253,21 @@ display(sdf_scaled.select("numeric_features", "scaled_features").limit(5))
 # MAGIC |---|---|---|
 # MAGIC | StringIndexer | カテゴリを連番（0, 1, 2...）に変換 | 順序のあるカテゴリ |
 # MAGIC | OneHotEncoder | 各カテゴリを独立した列に展開（0/1） | 順序のないカテゴリ |
+# MAGIC
+# MAGIC > **具体例でイメージしよう: OneHotEncoder**
+# MAGIC > ```
+# MAGIC > 元データ:  floor = "2F"
+# MAGIC >
+# MAGIC > StringIndexer後:  floor_index = 1
+# MAGIC >
+# MAGIC > OneHotEncoder後:  floor_ohe = [0, 1, 0, 0]
+# MAGIC >                                1F  2F  3F  4F以上
+# MAGIC > ```
+# MAGIC > なぜ数値の連番（0, 1, 2, 3）ではダメなのか？ → モデルが「3F は 1F の3倍」と誤解するためです。
+# MAGIC > OneHot にすると各カテゴリが独立した列になり、順序関係がなくなります。
+# MAGIC >
+# MAGIC > **ただし注意**: 決定木系のモデル（ランダムフォレスト、XGBoostなど）は
+# MAGIC > StringIndexer だけで十分なことが多く、OneHot にすると逆に効率が悪くなることがあります。
 
 # COMMAND ----------
 
@@ -304,3 +344,7 @@ plt.show()
 # MAGIC
 # MAGIC ### 次のステップ
 # MAGIC - `03_hyperparameter_tuning.py` でハイパーパラメータチューニングを学びましょう
+# MAGIC
+# MAGIC > **認定試験との関連** (ML Associate):
+# MAGIC > - **Data Processing (19%)**: summary()/describe()による統計量、欠損値の中央値/平均値/最頻値補完、外れ値検出
+# MAGIC > - **Data Processing (19%)**: StringIndexer、OneHotEncoder、StandardScaler vs MinMaxScaler

@@ -4,12 +4,33 @@ Streamlit Databricks App: RAG チャットボット
 社内FAQドキュメントを検索し、LLMが回答を生成するRAGチャットアプリです。
 Databricks Apps としてデプロイして使用します。
 
-デプロイ方法:
+=== このアプリの仕組み（RAG パイプライン）===
+
+  ユーザーが質問を入力
+       ↓
+  ① 質問をベクトル（数値配列）に変換（Embedding）
+       ↓
+  ② FAQドキュメントとのコサイン類似度を計算し、関連するFAQを検索
+       ↓
+  ③ 検索結果 + 質問 を LLM に渡して回答を生成（Generation）
+       ↓
+  回答 + 参照元ドキュメントを表示
+
+=== 前提条件 ===
+- Foundation Model APIs が有効なワークスペースで Databricks Apps としてデプロイ
+- genai/02_rag_chat.py の内容を理解していると、コードの意味がよりわかります
+
+=== デプロイ方法 ===
   1. Databricks ワークスペースの「コンピューティング」→「アプリ」を選択
   2. 「アプリの作成」をクリック
   3. アプリ名を入力（例: rag-chat-app）し作成
   4. このリポジトリの app_rag/ フォルダをソースコードパスに指定
   5. デプロイを実行
+
+=== ファイル構成 ===
+  app_rag/
+  ├── app.py              ← このファイル（メインアプリ）
+  └── requirements.txt    ← 必要なライブラリ一覧
 """
 
 import streamlit as st

@@ -7,6 +7,15 @@
 # MAGIC 前回（`02_rag_chat.py`）ではメモリ上でベクトル検索を行いましたが、
 # MAGIC 本番環境では **Vector Search Index** を使うことで、大量のドキュメントに対してスケーラブルに検索できます。
 # MAGIC
+# MAGIC > **前回との違い**
+# MAGIC > ```
+# MAGIC > 02（前回）:  ドキュメント → numpy配列（メモリ上） → コサイン類似度で検索
+# MAGIC >              → 数百件が限界、アプリ再起動でデータ消失
+# MAGIC >
+# MAGIC > 03（今回）:  ドキュメント → Delta Table → Vector Search Index
+# MAGIC >              → 数百万件もOK、永続化、自動同期
+# MAGIC > ```
+# MAGIC
 # MAGIC ## 学べること
 # MAGIC - ドキュメントのチャンク分割戦略
 # MAGIC - Delta Table へのドキュメント保存
@@ -78,6 +87,14 @@ print(f"インデックス名: {index_name}")
 # MAGIC
 # MAGIC > **チャンクサイズの目安**: 200〜500トークン程度が一般的です。
 # MAGIC > 小さすぎると文脈が失われ、大きすぎると検索精度が下がります。
+# MAGIC
+# MAGIC > **初心者の方へ: なぜチャンク分割するの？**
+# MAGIC >
+# MAGIC > 100ページの本から「パスワードのルール」を探す場面を想像してください。
+# MAGIC > - 本全体を1つのベクトルにすると、「この本はITマニュアルっぽい」くらいの大雑把な検索
+# MAGIC > - 1段落ごとにベクトルにすると、「この段落がまさにパスワードの話」とピンポイントで発見
+# MAGIC >
+# MAGIC > **オーバーラップ**は、チャンクの境界で情報が切れるのを防ぐ工夫です。
 
 # COMMAND ----------
 
@@ -335,3 +352,8 @@ for s in result["sources"]:
 # MAGIC
 # MAGIC ### 次のステップ
 # MAGIC - `04_agents_tool_use.py` でマルチステージ推論とエージェントを学びましょう
+# MAGIC
+# MAGIC > **認定試験との関連** (GenAI Engineer Associate):
+# MAGIC > - **Data Preparation for RAG**: チャンク分割戦略（固定長、オーバーラップ、セマンティック）
+# MAGIC > - **Data Preparation for RAG**: Delta Table、Vector Search Index（DELTA_SYNC）、Embedding モデル
+# MAGIC > - **Databricks Tools**: Vector Search エンドポイントの作成と管理

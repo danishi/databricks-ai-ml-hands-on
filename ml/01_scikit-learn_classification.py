@@ -3,12 +3,21 @@
 # MAGIC # scikit-learn による分類モデルの構築
 # MAGIC
 # MAGIC このノートブックでは、Databricks上でscikit-learnを使って**分類モデル**を構築する基本的な流れを学びます。
+# MAGIC **機械学習が初めての方でも安心して取り組める**よう、各ステップを丁寧に解説しています。
 # MAGIC
 # MAGIC **分類モデルとは？**
 # MAGIC > 入力データをあらかじめ決められたカテゴリ（クラス）に分けるモデルです。
 # MAGIC > 例: メールをスパム/非スパムに分類、画像を犬/猫に分類、など。
 # MAGIC
 # MAGIC 今回は「ワインの化学成分データから、ワインの品種（3種類）を予測する」タスクに取り組みます。
+# MAGIC
+# MAGIC ### このノートブックで体験する「機械学習の基本ワークフロー」
+# MAGIC
+# MAGIC ```
+# MAGIC ① データを用意する → ② 学習データとテストデータに分ける → ③ モデルを学習させる
+# MAGIC                                                            ↓
+# MAGIC ⑤ 結果を記録・管理する（MLflow）← ④ モデルの性能を評価する
+# MAGIC ```
 # MAGIC
 # MAGIC ## 学べること
 # MAGIC - Databricks上でのデータの読み込みと前処理
@@ -19,6 +28,9 @@
 # MAGIC ## 前提条件
 # MAGIC - Databricks Runtime ML（例: 16.x ML）のクラスターを使用してください
 # MAGIC - クラスターサイズはシングルノード（Single Node）で十分です
+# MAGIC
+# MAGIC > **初心者の方へ**: 各セルのコードは**上から順番に実行**してください。
+# MAGIC > セルの左上にある ▶ ボタンをクリックするか、`Shift + Enter` で実行できます。
 # MAGIC
 # MAGIC ---
 
@@ -55,6 +67,15 @@ import mlflow
 import matplotlib.pyplot as plt
 
 print("ライブラリのインポートが完了しました")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC > **用語メモ: import とは？**
+# MAGIC >
+# MAGIC > Pythonでは、他の人が作った便利な機能（ライブラリ）を `import` で読み込んで使います。
+# MAGIC > 料理でいえば「調理器具を棚から出してキッチンに並べる」イメージです。
+# MAGIC > ここでは、データ操作用（pandas）、機械学習用（scikit-learn）、実験管理用（mlflow）などを読み込みました。
 
 # COMMAND ----------
 
@@ -141,6 +162,13 @@ print(f"テストデータ: {len(X_test)} 件")
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC > **試してみよう**: `test_size=0.3` を `0.2` や `0.5` に変えて再実行してみましょう。
+# MAGIC > テストデータの割合を変えると、学習に使えるデータ量と評価の信頼性のバランスが変わります。
+# MAGIC > 一般的には 0.2〜0.3（20%〜30%をテスト用）がよく使われます。
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC ## 4. MLflow の自動ロギングを有効化
 # MAGIC
 # MAGIC **MLflow** は、機械学習の実験管理ツールです。Databricksに組み込まれています。
@@ -152,6 +180,10 @@ print(f"テストデータ: {len(X_test)} 件")
 # MAGIC
 # MAGIC > **メリット**: 手動でログを書く必要がなく、実験の再現性が自動的に確保されます。
 # MAGIC > 後から「どの設定で一番良い結果だったか？」を簡単に比較できます。
+# MAGIC
+# MAGIC > **初心者の方へ**: 「なぜ実験記録が大切？」
+# MAGIC > 機械学習では「パラメータを変えて何度も実験する」のが日常です。
+# MAGIC > ノートに手書きで記録していると管理が大変ですが、MLflowが**自動的に全部記録**してくれます。
 
 # COMMAND ----------
 
@@ -173,6 +205,12 @@ print("MLflow 自動ロギングが有効になりました")
 # MAGIC | `n_estimators` | 決定木の本数 | 100 |
 # MAGIC | `max_depth` | 各決定木の最大深さ | 5 |
 # MAGIC | `random_state` | 乱数シード（再現性のため） | 42 |
+# MAGIC
+# MAGIC > **用語メモ: random_state（乱数シード）とは？**
+# MAGIC >
+# MAGIC > ランダムフォレストは名前の通りランダムな要素を含むアルゴリズムです。
+# MAGIC > `random_state=42` を指定すると、毎回同じランダムな結果が得られます（再現性の確保）。
+# MAGIC > 42 という数字に特別な意味はなく、好きな数字でOKです。
 
 # COMMAND ----------
 
@@ -299,3 +337,8 @@ plt.show()
 # MAGIC - ハイパーパラメータ（`n_estimators`, `max_depth`）を変えて精度の変化を観察してみましょう
 # MAGIC - MLflowのUI上で複数の実行結果を比較してみましょう
 # MAGIC - **次のノートブック `02_eda_feature_engineering.py`** でデータの前処理を学びましょう
+# MAGIC
+# MAGIC > **認定試験との関連** (ML Associate):
+# MAGIC > - **Data Processing (19%)**: データの準備、train/test分割
+# MAGIC > - **Model Development (31%)**: scikit-learnによるモデル構築、評価指標（precision, recall, f1）
+# MAGIC > - **Databricks Machine Learning (38%)**: MLflow自動ロギング、ML Runtime

@@ -17,6 +17,18 @@
 # MAGIC | **Model Registry** | モデルのバージョン管理・ステージ管理 |
 # MAGIC | **Projects** | 実行環境の再現性（コード＋環境の定義） |
 # MAGIC
+# MAGIC > **初心者の方へ: MLflow の全体像**
+# MAGIC > ```
+# MAGIC > ① 実験を記録する (Tracking)
+# MAGIC >    └─ パラメータ、メトリクス、グラフ、モデルを自動/手動で記録
+# MAGIC >
+# MAGIC > ② モデルを登録する (Model Registry)
+# MAGIC >    └─ バージョン管理、champion/challenger のエイリアス付け
+# MAGIC >
+# MAGIC > ③ モデルをデプロイする (Model Serving ← 次のノートブック)
+# MAGIC >    └─ REST API として公開、アプリから呼び出し
+# MAGIC > ```
+# MAGIC
 # MAGIC ## 前提条件
 # MAGIC - Databricks Runtime ML（例: 16.x ML）
 # MAGIC - Unity Catalog が有効なワークスペース
@@ -187,6 +199,13 @@ with mlflow.start_run(run_name="register_best_model"):
 # MAGIC |---|---|
 # MAGIC | `champion` | 現在の本番モデル |
 # MAGIC | `challenger` | 本番候補（テスト中） |
+# MAGIC
+# MAGIC > **初心者の方へ**: エイリアスは「ニックネーム」のようなものです。
+# MAGIC > バージョン番号（v1, v2...）だと「どれが本番？」がわかりにくいですが、
+# MAGIC > `champion` というエイリアスを付けておけば、常に「本番モデル」が明確になります。
+# MAGIC >
+# MAGIC > 新しいモデルを `challenger` にして性能比較し、良ければ `champion` に昇格させる
+# MAGIC > というワークフローが一般的です。
 
 # COMMAND ----------
 
@@ -231,3 +250,8 @@ print(f"Champion モデルの予測: {predictions}")
 # MAGIC
 # MAGIC ### 次のステップ
 # MAGIC - `08_model_serving.py` でモデルをAPIとして公開する方法を学びましょう
+# MAGIC
+# MAGIC > **認定試験との関連** (ML Associate):
+# MAGIC > - **Databricks Machine Learning (38%)**: MLflow Client API でベスト Run を特定、手動ロギング、nested Run
+# MAGIC > - **Databricks Machine Learning (38%)**: Model Registry でのモデル登録、エイリアス（champion/challenger）の遷移
+# MAGIC > - **Databricks Machine Learning (38%)**: MLflow UI でのコード・実行時刻の確認

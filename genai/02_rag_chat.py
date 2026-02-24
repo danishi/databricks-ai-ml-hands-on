@@ -12,6 +12,14 @@
 # MAGIC > LLMは学習データに含まれない情報（社内ドキュメント、最新ニュースなど）を知りません。
 # MAGIC > RAGでは、質問に関連するドキュメントを**まず検索**し、その内容をLLMに渡して回答を生成します。
 # MAGIC
+# MAGIC > **初心者の方へ: RAG を身近な例で理解する**
+# MAGIC >
+# MAGIC > 想像してください: あなたが「会社の有給休暇のルール」を友人に聞かれたとします。
+# MAGIC > - **LLMだけ**: 記憶をたどって一般的なことを答える（間違うかも）
+# MAGIC > - **RAG**: まず社内規則集を開いて該当ページを読み、それを元に正確に答える
+# MAGIC >
+# MAGIC > RAG = **カンペを見てから回答する賢いアシスタント** です。
+# MAGIC
 # MAGIC ### RAG の流れ
 # MAGIC
 # MAGIC ```
@@ -522,3 +530,8 @@ for src in result_unknown["sources"]:
 # MAGIC ### 次のステップ
 # MAGIC - **Streamlit アプリ**（`app_rag/` ディレクトリ）で、チャットUIからRAGを体験してみましょう
 # MAGIC - [Databricks Vector Search](https://docs.databricks.com/ja/generative-ai/vector-search.html) でスケーラブルなベクトル検索を試してみましょう
+# MAGIC
+# MAGIC > **認定試験との関連** (GenAI Engineer Associate):
+# MAGIC > - **Data Preparation for RAG**: Embedding によるドキュメントのベクトル化、コサイン類似度
+# MAGIC > - **Data Preparation for RAG**: RAG パイプラインの設計（検索→コンテキスト構築→生成）
+# MAGIC > - **Evaluate and Optimize**: RAG あり/なしの比較、ハルシネーション防止

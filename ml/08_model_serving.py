@@ -13,10 +13,30 @@
 # MAGIC > モデルが即座に予測結果を返してくれます。
 # MAGIC
 # MAGIC ## 全体の流れ
-# MAGIC 1. モデルを学習する
-# MAGIC 2. MLflow にモデルを登録する（Unity Catalog）
-# MAGIC 3. Model Serving エンドポイントを作成する
-# MAGIC 4. API経由でモデルに予測をリクエストする
+# MAGIC
+# MAGIC ```
+# MAGIC ① モデルを学習 → ② MLflow に登録 → ③ エンドポイント作成 → ④ API で予測
+# MAGIC
+# MAGIC                     Unity Catalog        Model Serving
+# MAGIC                     ┌──────────┐       ┌──────────────┐
+# MAGIC  学習済みモデル  →  │ v1, v2.. │  →   │ REST API     │  ←  Webアプリ
+# MAGIC                     └──────────┘       │ リアルタイム予測│  ←  モバイルアプリ
+# MAGIC                                        └──────────────┘  ←  他のシステム
+# MAGIC ```
+# MAGIC
+# MAGIC > **初心者の方へ: なぜ Model Serving が必要？**
+# MAGIC >
+# MAGIC > ノートブック上でモデルを動かすだけでは、他のシステムから使えません。
+# MAGIC > Model Serving を使うと、Webアプリやモバイルアプリから
+# MAGIC > HTTP リクエスト（URLにアクセスするのと同じ要領）で予測を取得できるようになります。
+# MAGIC
+# MAGIC > **試験ポイント: 3つのデプロイ方式**
+# MAGIC >
+# MAGIC > | 方式 | 説明 | 例 |
+# MAGIC > |---|---|---|
+# MAGIC > | **バッチ推論** | まとめて大量に予測 | 毎晩の顧客スコアリング |
+# MAGIC > | **リアルタイム推論** | 1件ずつ即座に予測 | Webアプリの推薦 |
+# MAGIC > | **ストリーミング推論** | データが来たら随時予測 | IoTセンサーの異常検知 |
 # MAGIC
 # MAGIC ## 前提条件
 # MAGIC - Databricks Runtime ML（例: 16.x ML）のクラスターを使用してください
@@ -299,6 +319,9 @@ for i, pred in enumerate(predictions):
 # MAGIC REST API を使います。以下は `requests` ライブラリを使った例です。
 # MAGIC
 # MAGIC > **ポイント**: REST API を使えば、Python以外の言語（JavaScript、Java、Goなど）からも呼び出せます。
+# MAGIC >
+# MAGIC > **初心者の方へ**: REST API は「URLにデータを送って結果を受け取る」仕組みです。
+# MAGIC > Webブラウザでページを開くのと同じ要領で、プログラムからデータを送受信します。
 
 # COMMAND ----------
 
@@ -372,3 +395,7 @@ display(results[["predicted_name", "actual_name", "correct"]].head(10))
 # MAGIC ### 次のステップ
 # MAGIC - **Streamlit アプリ**（`app/` ディレクトリ）を使って、ブラウザからモデルを呼び出すUIを作ってみましょう
 # MAGIC - ハンズオン完了後は **`09_cleanup.py`** でリソースをクリーンアップしてください
+# MAGIC
+# MAGIC > **認定試験との関連** (ML Associate):
+# MAGIC > - **Model Deployment (12%)**: バッチ/リアルタイム/ストリーミングの違い、カスタムモデルのエンドポイントデプロイ手順
+# MAGIC > - **Databricks Machine Learning (38%)**: MLflow でのモデル登録、シグネチャの推論

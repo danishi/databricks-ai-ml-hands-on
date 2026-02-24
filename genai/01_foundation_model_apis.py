@@ -12,6 +12,15 @@
 # MAGIC > Databricksが提供する、LLMを簡単に呼び出せるAPIです。
 # MAGIC > 自分でモデルをデプロイ（設置）する必要がなく、**従量課金（pay-per-token）** で手軽に利用できます。
 # MAGIC
+# MAGIC > **初心者の方へ**: 普段 ChatGPT を使っているなら、イメージは同じです。
+# MAGIC > 違いは、**プログラムから**LLMを呼び出せること。これにより、
+# MAGIC > 大量のデータに自動でLLMを適用したり、自分のアプリにAI機能を組み込んだりできます。
+# MAGIC
+# MAGIC ```
+# MAGIC OpenAI の ChatGPT API:  openai.com にリクエスト → データが外部に出る
+# MAGIC Databricks Foundation Model APIs:  自社の Databricks ワークスペース内で完結 → データが外に出ない
+# MAGIC ```
+# MAGIC
 # MAGIC ## 学べること
 # MAGIC - Foundation Model APIs（pay-per-token）によるLLMの呼び出し
 # MAGIC - OpenAI互換クライアントを使ったチャット補完
@@ -147,6 +156,12 @@ print(response_high.choices[0].message.content)
 # MAGIC **Few-shot プロンプティング**とは、LLMに「こういう入力にはこう答えてほしい」という**例を数個**見せるテクニックです。
 # MAGIC
 # MAGIC プログラムを書かなくても、例を見せるだけでLLMが「パターン」を理解して同じ形式で回答してくれます。
+# MAGIC
+# MAGIC | プロンプト手法 | 例の数 | 説明 |
+# MAGIC |---|---|---|
+# MAGIC | **Zero-shot** | 0個 | 例なしで直接質問（上のセクションで実践済み） |
+# MAGIC | **One-shot** | 1個 | 例を1つ見せる |
+# MAGIC | **Few-shot** | 2〜数個 | 例を複数見せる（最もよく使われる） |
 # MAGIC
 # MAGIC 以下の例では、レビューの感情分析（ポジティブ/ネガティブ/ニュートラル）を行います:
 # MAGIC - 例1〜3: LLMにパターンを教える「お手本」
@@ -368,3 +383,8 @@ print("\n→ テキスト1とテキスト2（どちらもML関連）の類似度
 # MAGIC - 異なるモデル（`databricks-dbrx-instruct` など）を試してみましょう
 # MAGIC - より複雑なプロンプトで要約・翻訳などのタスクに挑戦してみましょう
 # MAGIC - [Databricks AI Playground](https://docs.databricks.com/ja/large-language-models/ai-playground.html) でインタラクティブにモデルを試すこともできます
+# MAGIC
+# MAGIC > **認定試験との関連** (GenAI Engineer Associate):
+# MAGIC > - **Design Applications with Foundation Models**: Foundation Model APIs、pay-per-token、temperature パラメータ
+# MAGIC > - **Design Applications with Foundation Models**: Few-shot プロンプティング、構造化出力
+# MAGIC > - **Databricks Tools**: Foundation Model APIs の OpenAI 互換インターフェース

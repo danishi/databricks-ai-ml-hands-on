@@ -13,6 +13,9 @@ Databricks 上で機械学習（ML）と生成AI を体系的に学べるハン�
 - Databricks 認定資格の取得を目指す方
 - Python の基本的な知識がある方
 
+> **初心者の方へ**: 各ノートブックには「用語メモ」「試してみよう」「認定試験との関連」といった
+> 補足解説が豊富に含まれています。上から順番にセルを実行するだけで、概念の理解から実践まで一通り体験できます。
+
 ## 必要な環境
 
 - Databricks ワークスペース（Community Edition でも一部可※）
@@ -72,10 +75,11 @@ Databricks 上で機械学習（ML）と生成AI を体系的に学べるハン�
 
 ### App（Databricks Apps）
 
-| ディレクトリ | 内容 |
-|---|---|
-| `app/` | Model Serving を呼び出す **ワイン分類予測アプリ**（Streamlit） |
-| `app_rag/` | 社内FAQドキュメントに基づく **RAGチャットボット**（Streamlit） |
+| # | ファイル | 内容 |
+|---|---|---|
+| - | `app/deploy_guide.py` | **Databricks Apps デプロイガイド**（デプロイ手順の解説ノートブック） |
+| - | `app/app.py` | Model Serving を呼び出す **ワイン分類予測アプリ**（Streamlit） |
+| - | `app_rag/app.py` | 社内FAQドキュメントに基づく **RAGチャットボット**（Streamlit） |
 
 ## 認定資格の試験範囲マッピング
 
@@ -112,8 +116,9 @@ Databricks 上で機械学習（ML）と生成AI を体系的に学べるハン�
 6. ml/06_feature_store.py                ← Feature Store
 7. ml/07_mlflow_experiment.py            ← MLflow 実験管理
 8. ml/08_model_serving.py               ← モデルをAPIとして公開
-9. app/ をDatabricks Appsとしてデプロイ    ← ブラウザからモデルを呼び出すUI
-10. ml/09_cleanup.py                     ← リソースの削除（終了時）
+9. app/deploy_guide.py                  ← Databricks Apps のデプロイ手順を学ぶ
+10. app/ をDatabricks Appsとしてデプロイ   ← ブラウザからモデルを呼び出すUI
+11. ml/09_cleanup.py                     ← リソースの削除（終了時）
 ```
 
 ### GenAI コース
@@ -165,6 +170,7 @@ databricks-ai-ml-hands-on/
 │   ├── 05_evaluation_governance.py              # 評価とガバナンス
 │   └── 06_cleanup.py                            # クリーンアップ
 ├── app/                                       # Databricks App: ワイン分類予測
+│   ├── deploy_guide.py                          # デプロイ手順のガイドノートブック
 │   ├── app.py
 │   └── requirements.txt
 └── app_rag/                                   # Databricks App: RAGチャット

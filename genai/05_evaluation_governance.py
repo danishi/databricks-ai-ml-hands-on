@@ -12,6 +12,10 @@
 # MAGIC > 生成AIは不適切な内容を生成するリスクがあります。
 # MAGIC > 安全性、コンプライアンス、データプライバシーを守る仕組みが必要です。
 # MAGIC
+# MAGIC > **初心者の方へ**: 「LLMが間違った回答をした」「機密情報を出力してしまった」
+# MAGIC > といった事故を防ぐには、**作る前に評価基準を決め、作った後にガードレールを設置**する
+# MAGIC > という二段構えが重要です。このノートブックでは両方を体験します。
+# MAGIC
 # MAGIC ## 学べること
 # MAGIC - RAGシステムの評価指標（検索品質・回答品質）
 # MAGIC - MLflow を使った LLM の評価
@@ -346,3 +350,9 @@ for out in test_outputs:
 # MAGIC
 # MAGIC ### クリーンアップ
 # MAGIC - ハンズオン終了後は `06_cleanup.py` でリソースを削除してください
+# MAGIC
+# MAGIC > **認定試験との関連** (GenAI Engineer Associate):
+# MAGIC > - **Evaluate and Optimize**: Faithfulness, Relevance, Groundedness, Toxicity の各指標
+# MAGIC > - **Evaluate and Optimize**: LLM-as-a-Judge によるスケーラブルな自動評価
+# MAGIC > - **Governance and Security**: ガードレール（入力フィルタ、出力フィルタ、PII検出）
+# MAGIC > - **Governance and Security**: 責任あるAI（透明性、公平性、プライバシー、安全性、説明可能性）

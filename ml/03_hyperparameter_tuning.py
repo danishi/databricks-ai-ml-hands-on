@@ -8,6 +8,19 @@
 # MAGIC > モデルの学習前に設定するパラメータです（例: 決定木の深さ、学習率）。
 # MAGIC > データから自動で決まるパラメータ（重み等）とは異なり、人が事前に決める必要があります。
 # MAGIC
+# MAGIC ### イメージ: ハイパーパラメータチューニングとは？
+# MAGIC
+# MAGIC ```
+# MAGIC 料理のレシピに例えると...
+# MAGIC
+# MAGIC  ハイパーパラメータ = レシピの調整項目
+# MAGIC    ├── 決定木の本数 (n_estimators) = 煮込み時間
+# MAGIC    ├── 決定木の深さ (max_depth)    = 火の強さ
+# MAGIC    └── min_samples_split           = 食材の切り方
+# MAGIC
+# MAGIC  チューニング = 最も美味しくなる設定を探すこと
+# MAGIC ```
+# MAGIC
 # MAGIC ## 学べること
 # MAGIC - 交差検証（Cross Validation）の仕組み
 # MAGIC - グリッドサーチとランダムサーチ
@@ -60,6 +73,12 @@ print(f"学習: {len(X_train)}件, テスト: {len(X_test)}件")
 # MAGIC ```
 # MAGIC
 # MAGIC > **メリット**: 1回のtrain/test分割よりもデータの偏りに強く、安定した評価が可能です。
+# MAGIC >
+# MAGIC > **デメリット**: 5分割なら5回学習するため、**計算時間が5倍**かかります。
+# MAGIC > データが大きい場合や試行回数が多い場合はトレードオフを考慮しましょう。
+# MAGIC >
+# MAGIC > **試験ポイント**: グリッドサーチ × 交差検証で学習されるモデル数は
+# MAGIC > 「パラメータの組み合わせ数 × fold数」です。例: 9通り × 3fold = **27回**の学習。
 
 # COMMAND ----------
 
@@ -116,6 +135,14 @@ print(f"テスト精度: {grid_search.score(X_test, y_test):.4f}")
 # MAGIC
 # MAGIC Hyperoptは**Tree-structured Parzen Estimator（TPE）** というアルゴリズムで、
 # MAGIC 過去の試行結果を学習して次に試すパラメータを賢く選びます。
+# MAGIC
+# MAGIC > **初心者の方へ: Hyperopt のイメージ**
+# MAGIC >
+# MAGIC > グリッドサーチ = 地図の全マスを1つずつ調べる（確実だが遅い）
+# MAGIC > Hyperopt     = 「あのあたりが良さそう」と推測して効率よく探す（賢い宝探し）
+# MAGIC >
+# MAGIC > **SparkTrials** を使うと、複数の試行をクラスタの複数ノードで**並列実行**できます。
+# MAGIC > シングルノード環境では `Trials()` を使います（今回のハンズオンではこちら）。
 
 # COMMAND ----------
 
@@ -199,3 +226,7 @@ print(f"テスト精度: {test_accuracy:.4f}")
 # MAGIC
 # MAGIC ### 次のステップ
 # MAGIC - `04_spark_ml_pipeline.py` で Spark ML のパイプラインを学びましょう
+# MAGIC
+# MAGIC > **認定試験との関連** (ML Associate):
+# MAGIC > - **Model Development (31%)**: 交差検証、グリッドサーチ、Hyperopt + SparkTrials
+# MAGIC > - **Model Development (31%)**: 試行回数とモデル精度の関係、並列化の理解

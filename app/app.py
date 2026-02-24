@@ -1,16 +1,33 @@
 """
 Streamlit Databricks App: ワイン分類モデルの予測UI
 
-このアプリは Databricks Apps として実行し、
-Model Serving エンドポイント（wine-classifier-endpoint）を呼び出して
-ワインの品種をリアルタイムに予測します。
+=== このアプリの仕組み ===
 
-デプロイ方法:
+  ブラウザ（このアプリ）
+       ↓ スライダーで特徴量を入力
+  Databricks Apps（Streamlit サーバー）
+       ↓ WorkspaceClient.serving_endpoints.query()
+  Model Serving エンドポイント（wine-classifier-endpoint）
+       ↓ 学習済みモデルで予測
+  予測結果（ワインの品種: class_0 / class_1 / class_2）
+       ↓
+  ブラウザに結果を表示
+
+=== 前提条件 ===
+- ml/08_model_serving.py を先に実行して、エンドポイントを作成済みであること
+- Databricks Apps としてデプロイされていること（ローカルPCでは動きません）
+
+=== デプロイ方法 ===
   1. Databricks ワークスペースの「コンピューティング」→「アプリ」を選択
   2. 「アプリの作成」をクリック
   3. アプリ名を入力（例: wine-classifier-app）し作成
   4. このリポジトリの app/ フォルダをソースコードパスに指定
   5. デプロイを実行
+
+=== ファイル構成 ===
+  app/
+  ├── app.py              ← このファイル（メインアプリ）
+  └── requirements.txt    ← 必要なライブラリ一覧
 """
 
 import streamlit as st
@@ -46,9 +63,13 @@ FEATURES = [
 ]
 
 
-@st.cache_resource
+@st.cache_resource  # この関数の結果をキャッシュ（アプリ再読み込み時に再実行しない）
 def get_workspace_client():
-    """Databricks WorkspaceClient を取得（Databricks Apps では自動認証）"""
+    """Databricks WorkspaceClient を取得（Databricks Apps では自動認証）
+
+    Databricks Apps 上で動かす場合、認証情報（トークン等）は自動的に設定されるため、
+    引数なしで WorkspaceClient() を呼ぶだけでOKです。
+    """
     return WorkspaceClient()
 
 

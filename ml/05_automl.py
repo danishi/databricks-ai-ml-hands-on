@@ -78,7 +78,6 @@ display(train_sdf.limit(5))
 # MAGIC | `target_col` | 目的変数の列名 |
 # MAGIC | `primary_metric` | 最適化する指標（accuracy, f1 など） |
 # MAGIC | `timeout_minutes` | 最大実行時間（分） |
-# MAGIC | `max_trials` | 最大試行回数 |
 
 # COMMAND ----------
 
@@ -89,8 +88,7 @@ summary = automl.classify(
     dataset=train_sdf,
     target_col="target",
     primary_metric="f1",
-    timeout_minutes=5,
-    max_trials=10,
+    timeout_minutes=15,
 )
 
 # COMMAND ----------
@@ -141,9 +139,17 @@ for i, (pred, actual) in enumerate(zip(predictions, df["target"].head(5))):
 
 # COMMAND ----------
 
-# 生成されたノートブックのURLを表示
-print("=== 生成されたノートブック ===")
-print(f"データ探索ノートブック: {summary.output_table_name}")
+# 生成されたノートブックのURLをリンクとして表示
+notebooks = [(t.mlflow_run_id, t.notebook_url) for t in summary.trials if t.notebook_url]
+html = "<h3>生成されたノートブック</h3>"
+html += f"<p>MLflow Experiment ID: {summary.experiment.experiment_id}<br>"
+html += f"MLflow Experiment Name: {summary.experiment.name}</p>"
+html += "<ul>"
+for run_id, url in notebooks:
+    html += f'<li>Trial: {run_id} - <a href="{url}">ノートブックを開く</a></li>'
+html += "</ul>"
+html += f"<p>{len(notebooks)}/{len(summary.trials)} 件のトライアルにノートブックあり</p>"
+displayHTML(html)
 
 # COMMAND ----------
 

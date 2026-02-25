@@ -220,6 +220,8 @@ except Exception as e:
 # COMMAND ----------
 
 # Delta Sync Index を作成
+from databricks.sdk.service.vectorsearch import PipelineType
+
 try:
     w.vector_search_indexes.create_index(
         name=index_name,

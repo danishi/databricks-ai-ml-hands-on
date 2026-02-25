@@ -202,7 +202,11 @@ display(spark.table(source_table))
 
 # COMMAND ----------
 
-from databricks.sdk.service.catalog import VectorSearchIndex
+from databricks.sdk.service.vectorsearch import (
+    DeltaSyncVectorIndexSpecRequest,
+    EmbeddingSourceColumn,
+    VectorIndexType,
+)
 
 # Vector Searchエンドポイントを作成（既存なら再利用）
 try:
@@ -219,14 +223,17 @@ try:
         name=index_name,
         endpoint_name=vs_endpoint_name,
         primary_key="chunk_id",
-        index_type="DELTA_SYNC",
-        delta_sync_index_spec={
-            "source_table": source_table,
-            "pipeline_type": "TRIGGERED",
-            "embedding_source_columns": [
-                {"name": "content", "embedding_model_endpoint_name": EMBEDDING_MODEL},
+        index_type=VectorIndexType.DELTA_SYNC,
+        delta_sync_index_spec=DeltaSyncVectorIndexSpecRequest(
+            source_table=source_table,
+            pipeline_type="TRIGGERED",
+            embedding_source_columns=[
+                EmbeddingSourceColumn(
+                    name="content",
+                    embedding_model_endpoint_name=EMBEDDING_MODEL,
+                ),
             ],
-        },
+        ),
     )
     print(f"Vector Search Index '{index_name}' を作成しました")
     print("インデックスの構築には数分かかる場合があります...")

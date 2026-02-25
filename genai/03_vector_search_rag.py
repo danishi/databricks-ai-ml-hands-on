@@ -31,7 +31,7 @@
 
 # COMMAND ----------
 
-# MAGIC %pip install -q openai
+# MAGIC %pip install -q openai databricks-sdk>=0.30.0
 # MAGIC dbutils.library.restartPython()
 
 # COMMAND ----------
@@ -205,12 +205,14 @@ display(spark.table(source_table))
 from databricks.sdk.service.vectorsearch import (
     DeltaSyncVectorIndexSpecRequest,
     EmbeddingSourceColumn,
+    EndpointType,
+    PipelineType,
     VectorIndexType,
 )
 
 # Vector Searchエンドポイントを作成（既存なら再利用）
 try:
-    w.vector_search_endpoints.create_and_wait(name=vs_endpoint_name, endpoint_type="STANDARD")
+    w.vector_search_endpoints.create_endpoint_and_wait(name=vs_endpoint_name, endpoint_type=EndpointType.STANDARD)
     print(f"Vector Search エンドポイント '{vs_endpoint_name}' を作成しました")
 except Exception as e:
     print(f"エンドポイント '{vs_endpoint_name}' は既に存在します（再利用します）")
@@ -218,6 +220,8 @@ except Exception as e:
 # COMMAND ----------
 
 # Delta Sync Index を作成
+from databricks.sdk.service.vectorsearch import PipelineType
+
 try:
     w.vector_search_indexes.create_index(
         name=index_name,
@@ -226,7 +230,7 @@ try:
         index_type=VectorIndexType.DELTA_SYNC,
         delta_sync_index_spec=DeltaSyncVectorIndexSpecRequest(
             source_table=source_table,
-            pipeline_type="TRIGGERED",
+            pipeline_type=PipelineType.TRIGGERED,
             embedding_source_columns=[
                 EmbeddingSourceColumn(
                     name="content",
@@ -275,12 +279,12 @@ def vector_search(query: str, num_results: int = 3) -> list[dict]:
     )
     return [
         {
-            "chunk_id": row["chunk_id"],
-            "title": row["title"],
-            "content": row["content"],
-            "score": row.get("score", 0),
+            "chunk_id": row[0],
+            "title": row[1],
+            "content": row[2],
+            "score": row[3] if len(row) > 3 else 0,
         }
-        for row in results.result.data_array_to_json()
+        for row in results.result.data_array
     ]
 
 # 検索テスト

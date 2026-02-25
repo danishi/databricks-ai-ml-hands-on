@@ -143,8 +143,10 @@ for i, (pred, actual) in enumerate(zip(predictions, df["target"].head(5))):
 print("=== 生成されたノートブック ===")
 print(f"MLflow Experiment ID: {summary.experiment.experiment_id}")
 print(f"MLflow Experiment Name: {summary.experiment.name}")
-for trial in summary.trials:
-    print(f"  Trial: {trial.mlflow_run_id}, Notebook: {trial.notebook_url}")
+notebooks = [(t.mlflow_run_id, t.notebook_url) for t in summary.trials if t.notebook_url]
+for run_id, url in notebooks:
+    print(f"  Trial: {run_id}, Notebook: {url}")
+print(f"  ({len(notebooks)}/{len(summary.trials)} 件のトライアルにノートブックあり)")
 
 # COMMAND ----------
 

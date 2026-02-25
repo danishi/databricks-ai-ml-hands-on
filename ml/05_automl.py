@@ -139,14 +139,17 @@ for i, (pred, actual) in enumerate(zip(predictions, df["target"].head(5))):
 
 # COMMAND ----------
 
-# 生成されたノートブックのURLを表示
-print("=== 生成されたノートブック ===")
-print(f"MLflow Experiment ID: {summary.experiment.experiment_id}")
-print(f"MLflow Experiment Name: {summary.experiment.name}")
+# 生成されたノートブックのURLをリンクとして表示
 notebooks = [(t.mlflow_run_id, t.notebook_url) for t in summary.trials if t.notebook_url]
+html = "<h3>生成されたノートブック</h3>"
+html += f"<p>MLflow Experiment ID: {summary.experiment.experiment_id}<br>"
+html += f"MLflow Experiment Name: {summary.experiment.name}</p>"
+html += "<ul>"
 for run_id, url in notebooks:
-    print(f"  Trial: {run_id}, Notebook: {url}")
-print(f"  ({len(notebooks)}/{len(summary.trials)} 件のトライアルにノートブックあり)")
+    html += f'<li>Trial: {run_id} - <a href="{url}">ノートブックを開く</a></li>'
+html += "</ul>"
+html += f"<p>{len(notebooks)}/{len(summary.trials)} 件のトライアルにノートブックあり</p>"
+displayHTML(html)
 
 # COMMAND ----------
 

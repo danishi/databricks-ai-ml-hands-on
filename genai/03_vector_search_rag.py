@@ -206,6 +206,7 @@ from databricks.sdk.service.vectorsearch import (
     DeltaSyncVectorIndexSpecRequest,
     EmbeddingSourceColumn,
     EndpointType,
+    PipelineType,
     VectorIndexType,
 )
 
@@ -227,7 +228,7 @@ try:
         index_type=VectorIndexType.DELTA_SYNC,
         delta_sync_index_spec=DeltaSyncVectorIndexSpecRequest(
             source_table=source_table,
-            pipeline_type="TRIGGERED",
+            pipeline_type=PipelineType.TRIGGERED,
             embedding_source_columns=[
                 EmbeddingSourceColumn(
                     name="content",

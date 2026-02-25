@@ -78,7 +78,6 @@ display(train_sdf.limit(5))
 # MAGIC | `target_col` | 目的変数の列名 |
 # MAGIC | `primary_metric` | 最適化する指標（accuracy, f1 など） |
 # MAGIC | `timeout_minutes` | 最大実行時間（分） |
-# MAGIC | `max_trials` | 最大試行回数 |
 
 # COMMAND ----------
 
@@ -89,8 +88,7 @@ summary = automl.classify(
     dataset=train_sdf,
     target_col="target",
     primary_metric="f1",
-    timeout_minutes=5,
-    max_trials=10,
+    timeout_minutes=15,
 )
 
 # COMMAND ----------

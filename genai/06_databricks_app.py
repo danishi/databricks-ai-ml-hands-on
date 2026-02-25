@@ -114,6 +114,11 @@
 # MAGIC
 # MAGIC Databricks Apps 上では、`WorkspaceClient()` を引数なしで呼ぶだけで自動認証されます。
 # MAGIC
+# MAGIC > **注意: OAuth 認証について**
+# MAGIC > Databricks Apps はサービスプリンシパルの **OAuth M2M 認証**で動作します。
+# MAGIC > そのため `w.config.token`（PAT トークン）は `None` になります。
+# MAGIC > OpenAI クライアントを使う場合は `w.config.authenticate()` で認証ヘッダーからトークンを取得してください。
+# MAGIC
 # MAGIC ```python
 # MAGIC from databricks.sdk import WorkspaceClient
 # MAGIC from openai import OpenAI
@@ -251,13 +256,37 @@ except Exception as e:
 # MAGIC 4. 以下を設定:
 # MAGIC    - **アプリ名**: `rag-chat-app`（任意の名前、小文字・数字・ハイフンのみ）
 # MAGIC    - **説明**: 社内FAQ RAGチャットボット（任意）
-# MAGIC 5. **「次: 設定」** をクリック（または「アプリの作成」で詳細設定をスキップ）
-# MAGIC 6. 必要に応じて以下を設定:
-# MAGIC    - **アプリのリソース**: アプリがアクセスする Databricks リソース（サービングエンドポイント等）を追加
-# MAGIC    - **コンピュートサイズ**: アプリの CPU・メモリを設定
-# MAGIC 7. **「アプリの作成」** をクリック
+# MAGIC 5. **「次: 設定」** をクリック
+# MAGIC 6. **「アプリのリソース」** で以下の 2 つを追加（**重要: これを設定しないと権限エラーになります**）:
+# MAGIC    - **サービングエンドポイント** — Vector Search エンドポイント（例: `vs_endpoint`）
+# MAGIC    - **サービングエンドポイント** — Foundation Model APIs 用エンドポイント（例: `databricks-meta-llama-3-3-70b-instruct`）
+# MAGIC 7. 必要に応じて **コンピュートサイズ** を設定
+# MAGIC 8. **「アプリの作成」** をクリック
 # MAGIC
-# MAGIC ### ステップ 3: アプリをデプロイ
+# MAGIC ### ステップ 3: サービスプリンシパルに Unity Catalog の権限を付与
+# MAGIC
+# MAGIC Databricks Apps は専用の **サービスプリンシパル**（OAuth M2M 認証）で動作します。
+# MAGIC Vector Search Index やソーステーブルにアクセスするには、このサービスプリンシパルに権限を付与する必要があります。
+# MAGIC
+# MAGIC > **サービスプリンシパルの確認方法**: アプリ詳細画面の **「権限」** タブでアプリに割り当てられた
+# MAGIC > サービスプリンシパルの ID（`client_id`）を確認できます。
+# MAGIC
+# MAGIC SQL エディタまたはノートブックで以下を実行してください（`<サービスプリンシパルID>` は実際の ID に置き換え）:
+# MAGIC
+# MAGIC ```sql
+# MAGIC -- カタログへのアクセス権
+# MAGIC GRANT USE CATALOG ON CATALOG main TO `<サービスプリンシパルID>`;
+# MAGIC
+# MAGIC -- スキーマへのアクセス権
+# MAGIC GRANT USE SCHEMA ON SCHEMA main.default TO `<サービスプリンシパルID>`;
+# MAGIC
+# MAGIC -- Vector Search のソーステーブルへの読み取り権
+# MAGIC GRANT SELECT ON TABLE main.default.rag_documents TO `<サービスプリンシパルID>`;
+# MAGIC ```
+# MAGIC
+# MAGIC > **権限を付与しない場合**: `PermissionDenied: Insufficient permissions for UC entity` エラーが発生します。
+# MAGIC
+# MAGIC ### ステップ 4: アプリをデプロイ
 # MAGIC
 # MAGIC 1. アプリの詳細画面で **「デプロイ」** ボタンをクリック
 # MAGIC 2. ワークスペース内の `app_rag/` フォルダを選択
@@ -265,11 +294,13 @@ except Exception as e:
 # MAGIC 3. **「選択」** → **「デプロイ」** をクリック
 # MAGIC 4. デプロイが完了するまで数分待ちます
 # MAGIC
-# MAGIC ### ステップ 4: アプリにアクセス
+# MAGIC ### ステップ 5: アプリにアクセス
 # MAGIC
 # MAGIC デプロイ完了後、アプリ詳細画面に表示される **URL** をクリックするとアプリが開きます。
 # MAGIC
 # MAGIC > **トラブルシューティング**:
+# MAGIC > - **`PermissionDenied: Insufficient permissions for UC entity`** → ステップ 3 のサービスプリンシパルへの権限付与を実施してください
+# MAGIC > - **`OpenAIError: The api_key client option must be set`** → アプリのコードで `w.config.token` ではなく `w.config.authenticate()` を使ってトークンを取得してください（Databricks Apps は OAuth 認証のため `w.config.token` が None になります）
 # MAGIC > - 画面が表示されない → デプロイが完了するまで数分待つ
 # MAGIC > - Vector Search のエラー → `genai/03_vector_search_rag.py` を実行済みか確認
 # MAGIC > - 回答が返らない → Foundation Model APIs が有効か確認

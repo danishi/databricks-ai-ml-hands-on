@@ -106,12 +106,14 @@ print(f"特徴量テーブル: {feature_table_name}")
 
 # データの準備
 wine = load_wine()
-pdf = pd.DataFrame(wine.data, columns=wine.feature_names)
+# Spark UDFの列名に使えない特殊文字（/）を置換
+feature_names = [name.replace("/", "_") for name in wine.feature_names]
+pdf = pd.DataFrame(wine.data, columns=feature_names)
 pdf["wine_id"] = range(len(pdf))  # 主キーを追加
 pdf["target"] = wine.target
 
 # 特徴量テーブル用のDataFrame（IDと特徴量のみ）
-feature_pdf = pdf[["wine_id"] + list(wine.feature_names)]
+feature_pdf = pdf[["wine_id"] + feature_names]
 feature_sdf = spark.createDataFrame(feature_pdf)
 
 # 特徴量テーブルを作成
@@ -177,7 +179,7 @@ from sklearn.metrics import accuracy_score
 
 # 学習データを準備
 training_pdf = training_df.toPandas()
-feature_cols = wine.feature_names
+feature_cols = [c for c in training_pdf.columns if c not in ("wine_id", "target")]
 X = training_pdf[feature_cols]
 y = training_pdf["target"]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
@@ -217,13 +219,16 @@ inference_sdf = spark.createDataFrame(
     pd.DataFrame({"wine_id": [0, 10, 50, 100, 150]})
 )
 
-# Feature Storeから特徴量を自動取得して推論
-predictions = fe.score_batch(
-    model_uri=f"runs:/{run.info.run_id}/model",
-    df=inference_sdf,
-)
+# Feature Storeから特徴量を取得して結合
+inference_pdf = inference_sdf.join(
+    spark.table(feature_table_name), on="wine_id"
+).toPandas()
 
-display(predictions.select("wine_id", "prediction"))
+# 学習済みモデルで推論（Feature Storeの特徴量を使用）
+pred_cols = [c for c in inference_pdf.columns if c != "wine_id"]
+inference_pdf["prediction"] = model.predict(inference_pdf[pred_cols])
+
+display(spark.createDataFrame(inference_pdf[["wine_id", "prediction"]]))
 
 # COMMAND ----------
 

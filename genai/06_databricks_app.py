@@ -282,6 +282,9 @@ except Exception as e:
 # MAGIC
 # MAGIC -- Vector Search のソーステーブルへの読み取り権
 # MAGIC GRANT SELECT ON TABLE main.default.rag_documents TO `<サービスプリンシパルID>`;
+# MAGIC
+# MAGIC -- Vector Search Index への読み取り権
+# MAGIC GRANT SELECT ON TABLE main.default.rag_documents_index TO `<サービスプリンシパルID>`;
 # MAGIC ```
 # MAGIC
 # MAGIC > **権限を付与しない場合**: `PermissionDenied: Insufficient permissions for UC entity` エラーが発生します。

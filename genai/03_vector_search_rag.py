@@ -31,7 +31,7 @@
 
 # COMMAND ----------
 
-# MAGIC %pip install -q openai
+# MAGIC %pip install -q openai databricks-sdk>=0.30.0
 # MAGIC dbutils.library.restartPython()
 
 # COMMAND ----------

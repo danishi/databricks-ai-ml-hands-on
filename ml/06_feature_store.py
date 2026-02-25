@@ -224,9 +224,9 @@ inference_pdf = inference_sdf.join(
     spark.table(feature_table_name), on="wine_id"
 ).toPandas()
 
-# 記録したモデルをロードして推論
-loaded_model = mlflow.pyfunc.load_model(f"runs:/{run.info.run_id}/model")
-inference_pdf["prediction"] = loaded_model.predict(inference_pdf[feature_cols])
+# 学習済みモデルで推論（Feature Storeの特徴量を使用）
+pred_cols = [c for c in inference_pdf.columns if c != "wine_id"]
+inference_pdf["prediction"] = model.predict(inference_pdf[pred_cols])
 
 display(spark.createDataFrame(inference_pdf[["wine_id", "prediction"]]))
 

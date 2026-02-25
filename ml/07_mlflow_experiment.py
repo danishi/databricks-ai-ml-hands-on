@@ -74,7 +74,8 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_
 # COMMAND ----------
 
 # 実験名を設定
-experiment_name = f"/Users/{spark.conf.get('spark.databricks.workspaceUrl', 'user')}/wine_model_comparison"
+user_name = dbutils.notebook.entry_point.getDbutils().notebook().getContext().userName().get()
+experiment_name = f"/Users/{user_name}/wine_model_comparison"
 mlflow.set_experiment(experiment_name)
 
 models = {
@@ -181,7 +182,7 @@ with mlflow.start_run(run_name="register_best_model"):
     signature = infer_signature(X_train, best_model.predict(X_train))
     model_info = mlflow.sklearn.log_model(
         sk_model=best_model,
-        artifact_path="model",
+        name="model",
         signature=signature,
         input_example=X_train.head(3),
         registered_model_name=model_name,

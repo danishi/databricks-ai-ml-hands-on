@@ -198,7 +198,7 @@ mlflow.set_registry_uri("databricks-uc")
 with mlflow.start_run(run_name="wine_feature_store_model") as run:
     fe.log_model(
         model=model,
-        artifact_path="model",
+        name="model",
         flavor=mlflow.sklearn,
         training_set=training_set,
     )

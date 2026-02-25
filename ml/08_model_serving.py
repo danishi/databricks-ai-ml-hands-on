@@ -166,7 +166,7 @@ signature = infer_signature(X_train, model.predict(X_train))
 with mlflow.start_run(run_name="wine_model_for_serving") as run:
     model_info = mlflow.sklearn.log_model(
         sk_model=model,
-        artifact_path="model",
+        name="model",
         signature=signature,
         input_example=X_train.head(3),
         registered_model_name=model_name,
@@ -242,6 +242,7 @@ except Exception:
     w.serving_endpoints.create_and_wait(
         name=endpoint_name,
         config=EndpointCoreConfigInput(
+            name=endpoint_name,
             served_entities=[
                 ServedEntityInput(
                     entity_name=model_name,

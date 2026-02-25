@@ -50,11 +50,29 @@ VS_INDEX_NAME = "main.default.rag_documents_index"
 
 
 @st.cache_resource
+def get_workspace_client():
+    """Databricks WorkspaceClient を取得（Databricks Apps では自動認証）"""
+    return WorkspaceClient()
+
+
+def _get_token() -> str:
+    """認証トークンを取得（PAT / OAuth 両方に対応）
+
+    Databricks Apps ではサービスプリンシパルの OAuth 認証が使われるため、
+    w.config.token が None になる。authenticate() で動的にトークンを取得する。
+    """
+    w = get_workspace_client()
+    if w.config.token:
+        return w.config.token
+    headers = w.config.authenticate()
+    return headers.get("Authorization", "").removeprefix("Bearer ")
+
+
 def get_clients():
-    """Databricks クライアントを取得（Databricks Apps では自動認証）"""
-    w = WorkspaceClient()
+    """Databricks クライアントと OpenAI クライアントを取得"""
+    w = get_workspace_client()
     openai_client = OpenAI(
-        api_key=w.config.token,
+        api_key=_get_token(),
         base_url=f"{w.config.host}/serving-endpoints",
     )
     return w, openai_client

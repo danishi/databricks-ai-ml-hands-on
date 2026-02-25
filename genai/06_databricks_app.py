@@ -119,8 +119,13 @@
 # MAGIC from openai import OpenAI
 # MAGIC
 # MAGIC w = WorkspaceClient()
+# MAGIC # OAuth 認証（Databricks Apps）と PAT 認証の両方に対応
+# MAGIC token = w.config.token
+# MAGIC if not token:
+# MAGIC     headers = w.config.authenticate()
+# MAGIC     token = headers.get("Authorization", "").removeprefix("Bearer ")
 # MAGIC openai_client = OpenAI(
-# MAGIC     api_key=w.config.token,
+# MAGIC     api_key=token,
 # MAGIC     base_url=f"{w.config.host}/serving-endpoints",
 # MAGIC )
 # MAGIC ```

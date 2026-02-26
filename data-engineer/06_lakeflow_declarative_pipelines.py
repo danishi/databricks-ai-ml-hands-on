@@ -38,7 +38,7 @@
 # MAGIC
 # MAGIC > **注意**: Lakeflow Declarative Pipelines のコードは通常 **DLT パイプライン内で実行** されます。
 # MAGIC > このノートブックでは概念の理解とコードパターンの学習に重点を置きます。
-# MAGIC > 実際の DLT パイプラインは Workflows から作成・実行します。
+# MAGIC > 実際のパイプラインは Lakeflow Jobs（旧 Workflows）から作成・実行します。
 # MAGIC
 # MAGIC ---
 
@@ -285,9 +285,9 @@ print(f"除外された行: {total_count - df_validated.count()} 件")
 # MAGIC %md
 # MAGIC ## 5. パイプラインの設定と管理
 # MAGIC
-# MAGIC ### DLT パイプラインの作成手順（UI）
+# MAGIC ### パイプラインの作成手順（UI）
 # MAGIC
-# MAGIC 1. 左サイドバーの **「ワークフロー」** → **「Delta Live Tables」** を選択
+# MAGIC 1. 左サイドバーの **「Lakeflow Jobs」**（旧「ワークフロー」）→ **「パイプライン」** を選択
 # MAGIC 2. **「パイプラインを作成」** をクリック
 # MAGIC 3. 設定項目を入力:
 # MAGIC
@@ -371,7 +371,7 @@ print(f"除外された行: {total_count - df_validated.count()} 件")
 # MAGIC 5. **監視** — イベントログによるパイプラインの監視
 # MAGIC
 # MAGIC ### 次のステップ
-# MAGIC - **次のノートブック `07_workflows_and_jobs.py`** で Workflows とジョブ管理を学びましょう
+# MAGIC - **次のノートブック `07_workflows_and_jobs.py`** で Lakeflow Jobs とジョブ管理を学びましょう
 # MAGIC
 # MAGIC > **認定試験との関連** (Data Engineer Associate):
 # MAGIC > - **Data Processing & Transformations (31%)**: Lakeflow Declarative Pipelines の利点、ストリーミングテーブルとマテリアライズドビュー、Expectations によるデータ品質管理

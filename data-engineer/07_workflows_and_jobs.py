@@ -1,19 +1,20 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC # Workflows、ジョブ管理、CI/CD
+# MAGIC # Lakeflow Jobs（旧 Workflows）、ジョブ管理、CI/CD
 # MAGIC
-# MAGIC このノートブックでは、Databricks **Workflows** によるジョブの管理・スケジューリング、
+# MAGIC このノートブックでは、**Lakeflow Jobs**（旧 Databricks Workflows）によるジョブの管理・スケジューリング、
 # MAGIC 障害復旧、**Databricks Asset Bundles（DABs）** による CI/CD を学びます。
 # MAGIC
-# MAGIC **Databricks Workflows とは？**
+# MAGIC **Lakeflow Jobs とは？**
 # MAGIC > データパイプラインやMLワークロードを **スケジューリング・オーケストレーション** するサービスです。
 # MAGIC > 複数のタスクを依存関係に基づいて実行し、監視・アラートを自動化します。
+# MAGIC > 以前は **Databricks Workflows** と呼ばれていましたが、Lakeflow ブランドに統合されました。
 # MAGIC
-# MAGIC ### Workflows の全体像
+# MAGIC ### Lakeflow Jobs の全体像
 # MAGIC
 # MAGIC ```
 # MAGIC ┌───────────────────────────────────────────────────────┐
-# MAGIC │                    Databricks Workflows                │
+# MAGIC │                      Lakeflow Jobs                     │
 # MAGIC │                                                       │
 # MAGIC │  ┌─────────┐    ┌─────────┐    ┌─────────┐          │
 # MAGIC │  │ Task A  │───→│ Task B  │───→│ Task C  │          │
@@ -30,7 +31,7 @@
 # MAGIC ```
 # MAGIC
 # MAGIC ## 学べること
-# MAGIC - Workflows のジョブ作成と管理
+# MAGIC - Lakeflow Jobs のジョブ作成と管理
 # MAGIC - CRON によるスケジューリング
 # MAGIC - タスク間の依存関係
 # MAGIC - 障害復旧とリトライ設定
@@ -64,7 +65,7 @@
 # MAGIC | Notebook | ノートブックを実行 | ETL 処理、データ変換 |
 # MAGIC | Python Script | Python ファイルを実行 | 汎用スクリプト |
 # MAGIC | SQL | SQL クエリを実行 | データ分析、テーブル作成 |
-# MAGIC | DLT Pipeline | Lakeflow パイプラインを実行 | 宣言型 ETL |
+# MAGIC | Pipeline | Lakeflow Declarative Pipeline を実行 | 宣言型 ETL |
 # MAGIC | JAR | Java/Scala JAR を実行 | 高性能処理 |
 # MAGIC | dbt | dbt プロジェクトを実行 | データモデリング |
 
@@ -78,7 +79,7 @@
 # COMMAND ----------
 
 # Databricks SDK を使ったジョブの概念説明
-# （実際のジョブ作成は Workflows UI から行うのが一般的です）
+# （実際のジョブ作成は Lakeflow Jobs の UI から行うのが一般的です）
 
 from databricks.sdk import WorkspaceClient
 
@@ -107,14 +108,14 @@ else:
 # MAGIC     {
 # MAGIC       "task_key": "bronze_ingestion",
 # MAGIC       "notebook_task": {
-# MAGIC         "notebook_path": "/Repos/project/data-engineer/02_data_ingestion"
+# MAGIC         "notebook_path": "/Workspace/Users/user/project/data-engineer/02_data_ingestion"
 # MAGIC       },
 # MAGIC       "job_cluster_key": "etl_cluster"
 # MAGIC     },
 # MAGIC     {
 # MAGIC       "task_key": "silver_transformation",
 # MAGIC       "notebook_task": {
-# MAGIC         "notebook_path": "/Repos/project/data-engineer/05_medallion_architecture"
+# MAGIC         "notebook_path": "/Workspace/Users/user/project/data-engineer/05_medallion_architecture"
 # MAGIC       },
 # MAGIC       "depends_on": [{"task_key": "bronze_ingestion"}],
 # MAGIC       "job_cluster_key": "etl_cluster"
@@ -122,7 +123,7 @@ else:
 # MAGIC     {
 # MAGIC       "task_key": "gold_aggregation",
 # MAGIC       "notebook_task": {
-# MAGIC         "notebook_path": "/Repos/project/data-engineer/05_medallion_architecture"
+# MAGIC         "notebook_path": "/Workspace/Users/user/project/data-engineer/05_medallion_architecture"
 # MAGIC       },
 # MAGIC       "depends_on": [{"task_key": "silver_transformation"}],
 # MAGIC       "job_cluster_key": "etl_cluster"
@@ -149,7 +150,7 @@ else:
 # MAGIC %md
 # MAGIC ## 3. CRON によるスケジューリング
 # MAGIC
-# MAGIC Databricks Workflows では **CRON 式** を使ってジョブの実行スケジュールを定義します。
+# MAGIC Lakeflow Jobs では **CRON 式** を使ってジョブの実行スケジュールを定義します。
 # MAGIC
 # MAGIC ### CRON 式の構文
 # MAGIC
@@ -205,7 +206,7 @@ for cron, desc in cron_examples:
 # MAGIC %md
 # MAGIC ## 4. タスクの依存関係
 # MAGIC
-# MAGIC Workflows では、タスク間の依存関係を定義して実行順序を制御できます。
+# MAGIC Lakeflow Jobs では、タスク間の依存関係を定義して実行順序を制御できます。
 # MAGIC
 # MAGIC ### 依存関係のパターン
 # MAGIC
@@ -272,7 +273,7 @@ print("  • 通知送信 は全タスクの完了後に実行")
 # MAGIC  [Task A: スキップ] → [Task B: 再実行] → [Task C: 実行]
 # MAGIC ```
 # MAGIC
-# MAGIC > **試験ポイント**: Workflows では失敗したタスクからの再実行が可能です。
+# MAGIC > **試験ポイント**: Lakeflow Jobs では失敗したタスクからの再実行が可能です。
 # MAGIC > 成功済みのタスクはスキップされるため、効率的に復旧できます。
 
 # COMMAND ----------
@@ -283,7 +284,7 @@ import json
 retry_config = {
     "task_key": "bronze_ingestion",
     "notebook_task": {
-        "notebook_path": "/Repos/project/02_data_ingestion"
+        "notebook_path": "/Workspace/Users/user/project/02_data_ingestion"
     },
     "max_retries": 3,
     "min_retry_interval_millis": 60000,
@@ -309,7 +310,7 @@ print(json.dumps(retry_config, indent=2, ensure_ascii=False))
 # MAGIC │  ローカル開発環境     │  ──────────→  │  Databricks        │
 # MAGIC │                    │               │  ワークスペース      │
 # MAGIC │  databricks.yml    │               │  • ジョブ           │
-# MAGIC │  src/              │               │  • DLT パイプライン  │
+# MAGIC │  src/              │               │  • パイプライン      │
 # MAGIC │  tests/            │               │  • ノートブック      │
 # MAGIC └────────────────────┘               └────────────────────┘
 # MAGIC ```
@@ -321,7 +322,7 @@ print(json.dumps(retry_config, indent=2, ensure_ascii=False))
 # MAGIC ├── databricks.yml          # メインの設定ファイル
 # MAGIC ├── resources/
 # MAGIC │   ├── my_job.yml          # ジョブの定義
-# MAGIC │   └── my_pipeline.yml     # DLT パイプラインの定義
+# MAGIC │   └── my_pipeline.yml     # パイプラインの定義
 # MAGIC ├── src/
 # MAGIC │   ├── notebook1.py        # ソースコード
 # MAGIC │   └── notebook2.sql
@@ -382,9 +383,9 @@ print(json.dumps(retry_config, indent=2, ensure_ascii=False))
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## 7. サーバーレスコンピュート for Workflows
+# MAGIC ## 7. サーバーレスコンピュート for Lakeflow Jobs
 # MAGIC
-# MAGIC Workflows のジョブをサーバーレスコンピュートで実行すると、
+# MAGIC Lakeflow Jobs のジョブをサーバーレスコンピュートで実行すると、
 # MAGIC クラスターの管理が不要になり、起動時間も大幅に短縮されます。
 # MAGIC
 # MAGIC | 特徴 | Job クラスター | サーバーレス |
@@ -407,7 +408,7 @@ print(json.dumps(retry_config, indent=2, ensure_ascii=False))
 # MAGIC
 # MAGIC | 方法 | 説明 |
 # MAGIC |---|---|
-# MAGIC | Workflows UI | ジョブの実行履歴、成功/失敗率を確認 |
+# MAGIC | Lakeflow Jobs UI | ジョブの実行履歴、成功/失敗率を確認 |
 # MAGIC | メールアラート | 成功/失敗/開始時にメール通知 |
 # MAGIC | Webhook | 外部サービスに通知（Slack 等） |
 # MAGIC | API | プログラムからジョブの状態を確認 |
@@ -449,7 +450,7 @@ for point, desc in monitoring_points:
 # MAGIC
 # MAGIC このノートブックでは以下を学びました:
 # MAGIC
-# MAGIC 1. **Workflows の基本** — ジョブ、タスク、トリガーの概念
+# MAGIC 1. **Lakeflow Jobs の基本** — ジョブ、タスク、トリガーの概念（旧 Workflows）
 # MAGIC 2. **CRON スケジューリング** — CRON 式の構文と代表的なパターン
 # MAGIC 3. **タスク依存関係** — 直列・並列・分岐の実行パターン
 # MAGIC 4. **障害復旧** — リトライ設定、失敗タスクからの再実行
@@ -461,4 +462,4 @@ for point, desc in monitoring_points:
 # MAGIC - **次のノートブック `08_unity_catalog_governance.py`** で Unity Catalog とデータガバナンスを学びましょう
 # MAGIC
 # MAGIC > **認定試験との関連** (Data Engineer Associate):
-# MAGIC > - **Productionizing Data Pipelines (18%)**: Workflows のジョブ管理、CRON スケジューリング、タスク依存関係、障害復旧、DABs、サーバーレスコンピュート
+# MAGIC > - **Productionizing Data Pipelines (18%)**: Lakeflow Jobs のジョブ管理、CRON スケジューリング、タスク依存関係、障害復旧、DABs、サーバーレスコンピュート

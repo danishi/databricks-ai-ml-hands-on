@@ -16,12 +16,12 @@
 # MAGIC │              Databricks Data Intelligence Platform       │
 # MAGIC │                                                         │
 # MAGIC │  ┌──────────┐  ┌──────────┐  ┌──────────┐             │
-# MAGIC │  │ Notebook  │  │ Cluster  │  │  Repos   │  ← 開発環境 │
+# MAGIC │  │ Notebook  │  │ Cluster  │  │Git folders│  ← 開発環境 │
 # MAGIC │  └──────────┘  └──────────┘  └──────────┘             │
 # MAGIC │                                                         │
 # MAGIC │  ┌──────────┐  ┌──────────┐  ┌──────────┐             │
-# MAGIC │  │Delta Lake│  │Unity     │  │ Workflows│  ← 基盤技術 │
-# MAGIC │  │          │  │Catalog   │  │          │             │
+# MAGIC │  │Delta Lake│  │Unity     │  │ Lakeflow │  ← 基盤技術  │
+# MAGIC │  │          │  │Catalog   │  │  Jobs    │             │
 # MAGIC │  └──────────┘  └──────────┘  └──────────┘             │
 # MAGIC │                                                         │
 # MAGIC │  ┌──────────────────────────────────────────┐          │
@@ -33,7 +33,7 @@
 # MAGIC ## 学べること
 # MAGIC - ノートブックの基本操作とマジックコマンド
 # MAGIC - クラスターの種類と使い分け
-# MAGIC - Databricks Repos による Git 連携
+# MAGIC - Git フォルダーによる Git 連携
 # MAGIC - クエリの最適化とコンピュートの選択
 # MAGIC - Databricks の価値提案（レイクハウスアーキテクチャ）
 # MAGIC
@@ -101,7 +101,7 @@ print(f"現在の Spark バージョン: {spark.version}")
 # MAGIC ## 2. ウィジェット（パラメータ化）
 # MAGIC
 # MAGIC ウィジェットを使うと、ノートブックにパラメータを渡せます。
-# MAGIC Workflows でジョブとして実行する際に特に便利です。
+# MAGIC Lakeflow Jobs（旧 Workflows）でジョブとして実行する際に特に便利です。
 # MAGIC
 # MAGIC | ウィジェットの種類 | 説明 |
 # MAGIC |---|---|
@@ -133,7 +133,7 @@ print("ウィジェットを削除しました")
 
 # MAGIC %md
 # MAGIC > **試験ポイント**: ウィジェットは `dbutils.widgets` で作成・取得・削除できます。
-# MAGIC > Workflows のジョブパラメータとして渡すこともできます。
+# MAGIC > Lakeflow Jobs のジョブパラメータとして渡すこともできます。
 
 # COMMAND ----------
 
@@ -170,7 +170,7 @@ print("ウィジェットを削除しました")
 # 現在のクラスター情報を確認
 print("=== 現在のクラスター情報 ===")
 print(f"Spark バージョン: {spark.version}")
-print(f"Spark コンフィグ例:")
+print("Spark コンフィグ例:")
 
 # よく使うコンフィグの確認
 configs = [
@@ -205,16 +205,17 @@ for key, label in configs:
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## 4. Databricks Repos（Git 連携）
+# MAGIC ## 4. Git フォルダー（Git 連携）
 # MAGIC
-# MAGIC Databricks Repos を使うと、Git リポジトリと Databricks ワークスペースを連携できます。
+# MAGIC **Git フォルダー**（旧称: Databricks Repos）を使うと、
+# MAGIC Git リポジトリと Databricks ワークスペースを連携できます。
 # MAGIC
-# MAGIC ### Repos でできること
+# MAGIC ### Git フォルダーでできること
 # MAGIC
 # MAGIC ```
 # MAGIC ┌─────────────┐    clone/pull/push    ┌──────────────┐
 # MAGIC │   GitHub     │ ◄──────────────────► │  Databricks  │
-# MAGIC │   GitLab     │                      │    Repos     │
+# MAGIC │   GitLab     │                      │  Git folders │
 # MAGIC │   Azure DevOps│                      │              │
 # MAGIC └─────────────┘                       └──────────────┘
 # MAGIC ```
@@ -227,9 +228,19 @@ for key, label in configs:
 # MAGIC | Branch | ブランチの作成・切り替え |
 # MAGIC | Commit | 変更をコミット |
 # MAGIC
-# MAGIC > **試験ポイント**: Databricks Repos は Git との統合を提供し、
+# MAGIC ### 旧 Repos からの変更点
+# MAGIC
+# MAGIC | 項目 | 旧 Repos | Git フォルダー |
+# MAGIC |---|---|---|
+# MAGIC | 配置場所 | `/Repos` 配下のみ | ワークスペースの任意の階層 |
+# MAGIC | 対応アセット | ノートブック、ファイル | + SQL アセット、MLflow 実験等 |
+# MAGIC | リモート URL | 任意 | 必須 |
+# MAGIC | UI 操作 | 新規 > Repo | 新規 > Git フォルダー |
+# MAGIC
+# MAGIC > **試験ポイント**: Git フォルダー（旧 Repos）は Git との統合を提供し、
 # MAGIC > ノートブックや Python ファイルのバージョン管理を可能にします。
 # MAGIC > CI/CD パイプラインとの統合にも活用されます。
+# MAGIC > 既存の `/Repos` パスは引き続き動作します。
 
 # COMMAND ----------
 
@@ -265,6 +276,9 @@ for f in files[:10]:  # 先頭10件を表示
 # MAGIC > DBFS は Databricks が提供する分散ファイルシステムです。
 # MAGIC > クラウドストレージ（S3, ADLS, GCS）を抽象化して、ローカルファイルのように扱えます。
 # MAGIC > `dbutils.fs` や `/dbfs/` パスでアクセスできます。
+# MAGIC >
+# MAGIC > ただし Unity Catalog が有効な環境では、DBFS よりも Unity Catalog の
+# MAGIC > ボリューム（Volumes）を使ったファイルアクセスが推奨されています。
 
 # COMMAND ----------
 
@@ -357,7 +371,29 @@ for name, desc in optimizations:
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## 8. Databricks のヘルプと学習リソース
+# MAGIC ## 8. 最新の用語変更
+# MAGIC
+# MAGIC Databricks は 2024〜2025年にかけてプラットフォームの名称を大幅に刷新しました。
+# MAGIC 試験では最新の用語が使われるため、以下の対応表を把握しておきましょう。
+# MAGIC
+# MAGIC | 旧名称 | 新名称 | 変更時期 |
+# MAGIC |---|---|---|
+# MAGIC | Lakehouse Platform | **Data Intelligence Platform** | 2024 |
+# MAGIC | Databricks Repos | **Git フォルダー（Git folders）** | 2024 |
+# MAGIC | Delta Live Tables (DLT) | **Lakeflow Declarative Pipelines** | 2024-2025 |
+# MAGIC | Databricks Workflows | **Lakeflow Jobs** | 2024-2025 |
+# MAGIC | Lakeview Dashboards | **AI/BI Dashboards** | 2024 |
+# MAGIC
+# MAGIC > **Lakeflow について**: Databricks は「**Lakeflow**」ブランドの下に
+# MAGIC > データエンジニアリング関連機能を統合しています。
+# MAGIC > - **Lakeflow Connect** — データの取り込み
+# MAGIC > - **Lakeflow Declarative Pipelines** — 宣言型 ETL（旧 DLT）
+# MAGIC > - **Lakeflow Jobs** — ワークフローのオーケストレーション（旧 Workflows）
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## 9. Databricks のヘルプと学習リソース
 # MAGIC
 # MAGIC Databricks には充実したドキュメントと学習リソースがあります。
 # MAGIC
@@ -391,13 +427,14 @@ dbutils.fs.help()
 # MAGIC 1. **ノートブックの基本** — マジックコマンド（%sql, %md, %sh）、%run によるノートブック連携
 # MAGIC 2. **ウィジェット** — パラメータ化されたノートブックの作成
 # MAGIC 3. **クラスターの種類** — All-Purpose、Job、SQL Warehouse の使い分け
-# MAGIC 4. **Repos** — Git 連携によるバージョン管理
+# MAGIC 4. **Git フォルダー** — Git 連携によるバージョン管理（旧 Repos）
 # MAGIC 5. **dbutils** — ファイル操作やシークレット管理
 # MAGIC 6. **クエリ最適化** — Photon、AQE による自動最適化
 # MAGIC 7. **レイクハウスアーキテクチャ** — データレイク + DWH の統合
+# MAGIC 8. **用語変更** — Repos → Git フォルダー、Workflows → Lakeflow Jobs 等
 # MAGIC
 # MAGIC ### 次のステップ
 # MAGIC - **次のノートブック `02_data_ingestion.py`** でデータの取り込み方法を学びましょう
 # MAGIC
 # MAGIC > **認定試験との関連** (Data Engineer Associate):
-# MAGIC > - **Databricks Intelligence Platform (10%)**: ワークスペースの構成要素、マジックコマンド、クラスタータイプ、Repos、クエリ最適化
+# MAGIC > - **Databricks Intelligence Platform (10%)**: ワークスペースの構成要素、マジックコマンド、クラスタータイプ、Git フォルダー、クエリ最適化

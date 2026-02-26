@@ -277,12 +277,21 @@ df_parquet.printSchema()
 # COMMAND ----------
 
 # COPY INTO でデータを取り込む
-# inferSchema を false にし、テーブル定義のスキーマに従ってキャストさせる
+# SELECT サブクエリで明示的に型をキャストし、スキーマの不一致を防ぐ
 spark.sql(f"""
 COPY INTO default.orders_copy_into
-FROM '{BASE_PATH}/csv/'
+FROM (
+  SELECT
+    CAST(order_id AS INT) AS order_id,
+    CAST(customer_id AS INT) AS customer_id,
+    product_name,
+    CAST(quantity AS INT) AS quantity,
+    CAST(price AS INT) AS price,
+    CAST(order_date AS DATE) AS order_date
+  FROM '{BASE_PATH}/csv/'
+)
 FILEFORMAT = CSV
-FORMAT_OPTIONS ('header' = 'true', 'inferSchema' = 'false')
+FORMAT_OPTIONS ('header' = 'true')
 """)
 print("COPY INTO が完了しました")
 
@@ -297,9 +306,18 @@ print("COPY INTO が完了しました")
 # 2回目の実行 → 重複取り込みされないことを確認
 spark.sql(f"""
 COPY INTO default.orders_copy_into
-FROM '{BASE_PATH}/csv/'
+FROM (
+  SELECT
+    CAST(order_id AS INT) AS order_id,
+    CAST(customer_id AS INT) AS customer_id,
+    product_name,
+    CAST(quantity AS INT) AS quantity,
+    CAST(price AS INT) AS price,
+    CAST(order_date AS DATE) AS order_date
+  FROM '{BASE_PATH}/csv/'
+)
 FILEFORMAT = CSV
-FORMAT_OPTIONS ('header' = 'true', 'inferSchema' = 'false')
+FORMAT_OPTIONS ('header' = 'true')
 """)
 print("2回目の COPY INTO が完了しました（べき等）")
 

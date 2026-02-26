@@ -366,10 +366,20 @@ except Exception as e:
 
 # mergeSchema オプションでスキーマ進化を有効化
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DecimalType, DateType
+from datetime import date
+
+new_schema = StructType([
+    StructField("sale_id", IntegerType()),
+    StructField("product", StringType()),
+    StructField("amount", DecimalType(10, 2)),
+    StructField("region", StringType()),
+    StructField("sale_date", DateType()),
+    StructField("note", StringType()),
+])
 
 new_data = spark.createDataFrame([
-    (11, "タブレット", 35000.00, "東京", "2024-03-01", "新商品")
-], ["sale_id", "product", "amount", "region", "sale_date", "note"])
+    (11, "タブレット", 35000.00, "東京", date(2024, 3, 1), "新商品")
+], schema=new_schema)
 
 new_data.write.format("delta").mode("append").option("mergeSchema", "true").saveAsTable("default.sales_delta")
 print("スキーマ進化（mergeSchema）により、note カラムが追加されました")

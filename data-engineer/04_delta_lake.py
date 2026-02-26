@@ -367,6 +367,7 @@ except Exception as e:
 # mergeSchema オプションでスキーマ進化を有効化
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DecimalType, DateType
 from datetime import date
+from decimal import Decimal
 
 new_schema = StructType([
     StructField("sale_id", IntegerType()),
@@ -378,7 +379,7 @@ new_schema = StructType([
 ])
 
 new_data = spark.createDataFrame([
-    (11, "タブレット", 35000.00, "東京", date(2024, 3, 1), "新商品")
+    (11, "タブレット", Decimal("35000.00"), "東京", date(2024, 3, 1), "新商品")
 ], schema=new_schema)
 
 new_data.write.format("delta").mode("append").option("mergeSchema", "true").saveAsTable("default.sales_delta")

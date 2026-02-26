@@ -40,18 +40,33 @@
 # MAGIC
 # MAGIC まず、ハンズオンで使用するサンプルデータを作成します。
 # MAGIC EC サイトの注文データを模擬したデータセットを使います。
+# MAGIC
+# MAGIC > **Unity Catalog ボリューム（Volumes）** を使ってファイルを管理します。
+# MAGIC > ボリュームは Unity Catalog で管理されるファイルストレージです。
+# MAGIC > 従来の DBFS（`/tmp/` 等）は Unity Catalog 環境では無効化されているため、
+# MAGIC > `/Volumes/<catalog>/<schema>/<volume>/` パスを使用します。
 
 # COMMAND ----------
 
 import json
 from datetime import datetime, timedelta
 import random
+import os
 
-# サンプルデータの保存先
-BASE_PATH = "/tmp/data_engineer_handson"
+# Unity Catalog ボリュームの設定
+CATALOG = "main"
+SCHEMA = "default"
+VOLUME_NAME = "data_engineer_handson"
 
-# 前回のデータがあれば削除
-dbutils.fs.rm(BASE_PATH, recurse=True)
+# ボリュームの作成（存在しない場合）
+spark.sql(f"CREATE VOLUME IF NOT EXISTS {CATALOG}.{SCHEMA}.{VOLUME_NAME}")
+
+# サンプルデータの保存先（Unity Catalog Volume）
+BASE_PATH = f"/Volumes/{CATALOG}/{SCHEMA}/{VOLUME_NAME}"
+
+# サブディレクトリの作成
+for subdir in ["csv", "json", "parquet", "checkpoints"]:
+    os.makedirs(f"{BASE_PATH}/{subdir}", exist_ok=True)
 
 # --- CSV データの作成 ---
 csv_data = "order_id,customer_id,product_name,quantity,price,order_date\n"
@@ -65,7 +80,8 @@ for i in range(1, 101):
     date = (datetime(2024, 1, 1) + timedelta(days=random.randint(0, 180))).strftime("%Y-%m-%d")
     csv_data += f"{i},{random.randint(1000, 1099)},{product},{qty},{price},{date}\n"
 
-dbutils.fs.put(f"{BASE_PATH}/csv/orders.csv", csv_data, overwrite=True)
+with open(f"{BASE_PATH}/csv/orders.csv", "w") as f:
+    f.write(csv_data)
 
 # --- JSON データの作成 ---
 json_records = []
@@ -79,9 +95,11 @@ for i in range(1, 51):
     }
     json_records.append(json.dumps(record, ensure_ascii=False))
 
-dbutils.fs.put(f"{BASE_PATH}/json/customers.json", "\n".join(json_records), overwrite=True)
+with open(f"{BASE_PATH}/json/customers.json", "w") as f:
+    f.write("\n".join(json_records))
 
 print("サンプルデータを作成しました:")
+print(f"  ボリューム: {CATALOG}.{SCHEMA}.{VOLUME_NAME}")
 print(f"  CSV: {BASE_PATH}/csv/orders.csv")
 print(f"  JSON: {BASE_PATH}/json/customers.json")
 
@@ -258,13 +276,15 @@ df_parquet.printSchema()
 
 # COMMAND ----------
 
-# MAGIC %sql
-# MAGIC -- COPY INTO でデータを取り込む
-# MAGIC COPY INTO default.orders_copy_into
-# MAGIC FROM '/tmp/data_engineer_handson/csv/'
-# MAGIC FILEFORMAT = CSV
-# MAGIC FORMAT_OPTIONS ('header' = 'true', 'inferSchema' = 'true')
-# MAGIC COPY_OPTIONS ('mergeSchema' = 'true')
+# COPY INTO でデータを取り込む
+spark.sql(f"""
+COPY INTO default.orders_copy_into
+FROM '{BASE_PATH}/csv/'
+FILEFORMAT = CSV
+FORMAT_OPTIONS ('header' = 'true', 'inferSchema' = 'true')
+COPY_OPTIONS ('mergeSchema' = 'true')
+""")
+print("COPY INTO が完了しました")
 
 # COMMAND ----------
 
@@ -274,13 +294,15 @@ df_parquet.printSchema()
 
 # COMMAND ----------
 
-# MAGIC %sql
-# MAGIC -- 2回目の実行 → 重複取り込みされないことを確認
-# MAGIC COPY INTO default.orders_copy_into
-# MAGIC FROM '/tmp/data_engineer_handson/csv/'
-# MAGIC FILEFORMAT = CSV
-# MAGIC FORMAT_OPTIONS ('header' = 'true', 'inferSchema' = 'true')
-# MAGIC COPY_OPTIONS ('mergeSchema' = 'true')
+# 2回目の実行 → 重複取り込みされないことを確認
+spark.sql(f"""
+COPY INTO default.orders_copy_into
+FROM '{BASE_PATH}/csv/'
+FILEFORMAT = CSV
+FORMAT_OPTIONS ('header' = 'true', 'inferSchema' = 'true')
+COPY_OPTIONS ('mergeSchema' = 'true')
+""")
+print("2回目の COPY INTO が完了しました（べき等）")
 
 # COMMAND ----------
 
@@ -402,7 +424,8 @@ for i in range(101, 111):
     discount = random.choice([0, 5, 10, 15, 20])
     csv_data_v2 += f"{i},{random.randint(1000, 1099)},{product},{qty},{price},{date},{discount}\n"
 
-dbutils.fs.put(f"{BASE_PATH}/csv/orders_v2.csv", csv_data_v2, overwrite=True)
+with open(f"{BASE_PATH}/csv/orders_v2.csv", "w") as f:
+    f.write(csv_data_v2)
 print("新しいカラム（discount）を含むデータを追加しました")
 
 # COMMAND ----------

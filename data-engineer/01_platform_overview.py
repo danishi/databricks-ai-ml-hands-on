@@ -307,7 +307,10 @@ except Exception as e:
 # COMMAND ----------
 
 # AQE（Adaptive Query Execution）の設定を確認
-aqe_enabled = spark.conf.get("spark.sql.adaptive.enabled", "not set")
+try:
+    aqe_enabled = spark.conf.get("spark.sql.adaptive.enabled")
+except Exception:
+    aqe_enabled = "デフォルトで有効（設定値の直接参照は不可）"
 print(f"Adaptive Query Execution: {aqe_enabled}")
 
 # AQE の主な最適化

@@ -6,7 +6,7 @@
 # MAGIC
 # MAGIC 1. **Delta テーブル** — 各ノートブックで作成したテーブル
 # MAGIC 2. **スキーマ** — ハンズオン用に作成したスキーマ
-# MAGIC 3. **一時ファイル** — サンプルデータ
+# MAGIC 3. **Unity Catalog ボリューム** — サンプルデータ用ボリューム
 # MAGIC
 # MAGIC > **重要**: ハンズオン終了後はこのノートブックを実行して不要なリソースを削除してください。
 # MAGIC > テーブルやスキーマが残ったままだと、ストレージコストが発生する場合があります。
@@ -55,6 +55,9 @@ handson_tables = [
     f"{handson_schema}.managed_example",
 ]
 
+# ハンズオン用ボリューム（02_data_ingestion.py で作成）
+handson_volume = f"{catalog}.{schema}.data_engineer_handson"
+
 print("=== 削除対象 ===")
 print(f"\nカタログ: {catalog}")
 print(f"スキーマ: {schema}")
@@ -63,6 +66,8 @@ for t in tables_to_drop + handson_tables:
     print(f"  - {t}")
 print(f"\nスキーマ:")
 print(f"  - {handson_schema}")
+print(f"\nボリューム:")
+print(f"  - {handson_volume}")
 
 # COMMAND ----------
 
@@ -98,36 +103,28 @@ except Exception as e:
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## 3. 一時ファイルの削除
+# MAGIC ## 3. ボリュームの削除
 
 # COMMAND ----------
 
-print("=== 一時ファイルの削除 ===")
-temp_paths = [
-    "/tmp/data_engineer_handson",
-]
-
-for path in temp_paths:
-    try:
-        dbutils.fs.rm(path, recurse=True)
-        print(f"  ✓ {path} を削除しました")
-    except Exception as e:
-        print(f"  - {path} の削除をスキップしました（理由: {e}）")
+print("=== ボリュームの削除 ===")
+try:
+    spark.sql(f"DROP VOLUME IF EXISTS {handson_volume}")
+    print(f"  ✓ {handson_volume} を削除しました")
+except Exception as e:
+    print(f"  - {handson_volume} の削除をスキップしました（理由: {e}）")
 
 # COMMAND ----------
 
 # MAGIC %md
 # MAGIC ## 4. Auto Loader チェックポイントの確認
 # MAGIC
-# MAGIC Auto Loader のチェックポイントは一時ファイルと一緒に削除されます。
-# MAGIC 追加のチェックポイントがある場合は手動で確認してください。
+# MAGIC Auto Loader のチェックポイントはボリュームの削除に含まれています。
 
 # COMMAND ----------
 
 print("=== チェックポイントの確認 ===")
-print("Auto Loader のチェックポイントは一時ファイルの削除に含まれています。")
-print("追加のチェックポイントがある場合は、以下のパスを確認してください:")
-print("  /tmp/data_engineer_handson/checkpoints/")
+print("Auto Loader のチェックポイントはボリュームの削除に含まれています。")
 
 # COMMAND ----------
 
@@ -161,7 +158,7 @@ dbutils.widgets.removeAll()
 # MAGIC | Delta テーブル（default スキーマ） | 削除済み |
 # MAGIC | Delta テーブル（handson スキーマ） | 削除済み |
 # MAGIC | ハンズオン用スキーマ | 削除済み |
-# MAGIC | 一時ファイル（/tmp/） | 削除済み |
+# MAGIC | Unity Catalog ボリューム | 削除済み |
 # MAGIC | クラスター | 手動停止 |
 # MAGIC
 # MAGIC お疲れさまでした！

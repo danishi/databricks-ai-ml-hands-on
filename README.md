@@ -6,7 +6,7 @@ Databricks 上で機械学習（ML）、生成AI、データ分析、データ�
 - [Databricks Certified Machine Learning Associate](https://www.databricks.com/learn/certification/machine-learning-associate)
 - [Databricks Certified Generative AI Engineer Associate](https://www.databricks.com/learn/certification/generative-ai-engineer-associate)
 - [Databricks Certified Data Analyst Associate](https://www.databricks.com/learn/certification/data-analyst-associate)
-- [Databricks Certified Data Engineer Associate](https://www.databricks.com/jp/learn/certification/data-engineer-associate)
+- [Databricks Certified Data Engineer Associate](https://www.databricks.com/learn/certification/data-engineer-associate)
 
 ## 対象者
 

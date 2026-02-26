@@ -277,12 +277,12 @@ df_parquet.printSchema()
 # COMMAND ----------
 
 # COPY INTO でデータを取り込む
-# テーブルのスキーマが既に定義されているため、inferSchema は不要
+# inferSchema を false にし、テーブル定義のスキーマに従ってキャストさせる
 spark.sql(f"""
 COPY INTO default.orders_copy_into
 FROM '{BASE_PATH}/csv/'
 FILEFORMAT = CSV
-FORMAT_OPTIONS ('header' = 'true')
+FORMAT_OPTIONS ('header' = 'true', 'inferSchema' = 'false')
 """)
 print("COPY INTO が完了しました")
 
@@ -299,7 +299,7 @@ spark.sql(f"""
 COPY INTO default.orders_copy_into
 FROM '{BASE_PATH}/csv/'
 FILEFORMAT = CSV
-FORMAT_OPTIONS ('header' = 'true')
+FORMAT_OPTIONS ('header' = 'true', 'inferSchema' = 'false')
 """)
 print("2回目の COPY INTO が完了しました（べき等）")
 
